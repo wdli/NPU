@@ -1,5 +1,4 @@
 RSA Commands
-------------
 
 Generate private key of 1024 bits and encrypt with 3DES:
 --------------------------------------------------------
@@ -16,8 +15,14 @@ openssl rsautl -encrypt -pubin -inkey rsapublickey.pem -in plain.txt -out rsa-ci
 
 Decrypt the cipher text using rsa private key:
 -----------------------------------------------
-
 openssl rsautl -decrypt -inkey rsaprivatekey.pem -in rsa-cipher.txt -out rsa-plain.txt
 Enter pass phrase for rsaprivatekey.pem:
 
+Sign a plain text file with RSA private key:
+----------------------------------------------
+openssl rsautl -sign -inkey rsaprivatekey.pem -in plain.txt -out sig.bin
 
+
+Verify the signature using RSA public key
+--------------------------------------------
+openssl rsautl -verify -pubin -inkey rsapublickey.pem -in sig.bin -out plain-verified.txt
