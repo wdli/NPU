@@ -1,0 +1,23 @@
+RSA Commands
+------------
+
+Generate private key of 1024 bits and encrypt with 3DES:
+--------------------------------------------------------
+openssl genrsa -out rsaprivatekey.pem -passout pass:cs535 -des3 1024
+
+Read the above private key and generate a matching public key:
+--------------------------------------------------------------
+openssl rsa -in rsaprivatekey.pem -passin pass:cs535 -pubout -out rsapublickey.pem
+
+
+Encrypt plain text using rsa public key:
+--------------------------------------
+openssl rsautl -encrypt -pubin -inkey rsapublickey.pem -in plain.txt -out rsa-cipher.txt
+
+Decrypt the cipher text using rsa private key:
+-----------------------------------------------
+
+openssl rsautl -decrypt -inkey rsaprivatekey.pem -in rsa-cipher.txt -out rsa-plain.txt
+Enter pass phrase for rsaprivatekey.pem:
+
+
