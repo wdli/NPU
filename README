@@ -1,9 +1,18 @@
-3/4/14
+
+
 
 Added initial cs535_sysmmetric_cipher.c
 To compile, do "gcc -g -lssl -o cs535_sysmmetric_cipher cs535_sysmmetric_cipher.c"
 
-1/28/2014
+
+For Ubuntu users, download openssl tarball:
+wget http://www.openssl.org/source/openssl-1.0.1f.tar.gz
+tar xvf 
+cd openssl-dir
+./config
+sudo make install
+# 3/6 still not working on ubuntu with the following gcc cmd:
+# gcc -lssl -I /usr/local/ssl/include -L /usr/local/ssl/lib -o cs535_sysmmetric_cipher cs535_sysmmetric_cipher.
 
 Create a repo for NPU projects
 
