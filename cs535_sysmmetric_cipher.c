@@ -9,14 +9,16 @@
 /*
  * Globals
  */
-static EVP_CIPHER_CTX ctx;
+static EVP_CIPHER_CTX ctx; // This has to be initialized once before encryption and once
+                           // before decryption using the same key and IV
+
 static unsigned char  key[EVP_MAX_KEY_LENGTH];
 static unsigned char  iv[EVP_MAX_IV_LENGTH];
 
 #define KEY_LEN 16 //bytes
 
-#define CS535_EN_FILE "cs535_encrpted_file.txt"
-#define CS535_DE_FILE "cs535_decrpted_file.txt"
+#define CS535_EN_FILE "cs535_encrypted_file.txt"
+#define CS535_DE_FILE "cs535_decrypted_file.txt"
 #define CS535_KEY_FILE "cs535_encryption_key.txt"
 #define CS535_IV_FILE "cs535_encryption_iv.txt"
 
@@ -72,7 +74,7 @@ static int
 CS535_setup_for_encryption(unsigned  char * key, unsigned char *iv)
 {
 
-  EVP_EncryptInit(&ctx, EVP_aes_128_cbc(), key, iv);
+  EVP_EncryptInit_ex(&ctx, EVP_aes_128_cbc(), NULL, key, iv);
 
   return 0;
 }
@@ -85,7 +87,7 @@ static int
 CS535_setup_for_decryption(unsigned  char * key, unsigned char *iv)
 {
 
-  EVP_DecryptInit(&ctx, EVP_aes_128_cbc(), key, iv);
+  EVP_DecryptInit_ex(&ctx, EVP_aes_128_cbc(), NULL, key, iv);
   
   return 0;
 }
@@ -111,6 +113,8 @@ CS535_encrypt(unsigned char * data, int datalen, char *enbuf, int *enlen)
   int i;
 
   printf (" Data len to be encrypted %d\n", datalen);
+  CS535_setup_for_encryption(key, iv);
+
   if (!( rc = EVP_EncryptUpdate(&ctx, enbuf,enlen, data, datalen))) {
     printf (" Encrption error: %d\n",rc);
     return -1;
@@ -120,7 +124,7 @@ CS535_encrypt(unsigned char * data, int datalen, char *enbuf, int *enlen)
     // Final call: start at the end of the enbuf. The final may need
     // to add more padding after that point. The padding len is stored in tmplen
     //
-    if (!( rc = EVP_EncryptFinal(&ctx, enbuf+(*enlen), &tmplen))) {
+    if (!( rc = EVP_EncryptFinal_ex(&ctx, enbuf+(*enlen), &tmplen))) {
       printf (" Finalization error: %d\n", rc);
       return -1;
     }
@@ -132,11 +136,6 @@ CS535_encrypt(unsigned char * data, int datalen, char *enbuf, int *enlen)
 
   fwrite(enbuf,1,*enlen, out);
   printf (" Encrypted data saved to file: %s\n", CS535_EN_FILE);
-
-
-  for (i=0; i< *enlen;i++) {
-    printf (" BYTE%2d: %02X ",i,enbuf[i]);
-  }
   printf ("\n");
 
   return 0;
@@ -154,22 +153,26 @@ CS535_decrypt(char* data, int datalen, char *debuf, int *delen)
   FILE * out;
   int rc;
 
+
   printf (" Data len to be decrypted %d\n", datalen);
+
+  CS535_setup_for_decryption(key,iv);
   if (!( rc = EVP_DecryptUpdate(&ctx, debuf, delen, data, datalen))) {
     printf (" Decryption error: %d\n", rc);
     return -1;
   }
-  else {
-    printf (" DecryptUpdate delen = %d \n", *delen);
-    if (! (rc = EVP_DecryptFinal(&ctx, debuf, &datalen))) {
-      printf (" Finalization error: %d\n", rc);
-      return -1;
-    }
+  printf (" DecryptUpdate delen = %d \n", *delen);
+
+  printf (" Finalizing... \n");
+  if ((rc = EVP_DecryptFinal_ex(&ctx, debuf, &tmplen)) == 0) {
+    printf (" Finalization error: %d\n", rc);
+    return -1;
   }
+  printf (" DecryptFinal tmplen = %d\n",tmplen);
   *delen += tmplen;
-
-
-
+  
+  debuf[*delen] = '\0';
+  
   out = fopen(CS535_DE_FILE,"wb");
   fwrite(debuf,1, *delen, out);
   printf (" Decrypted data saved to file: %s\n", CS535_DE_FILE);
@@ -204,15 +207,10 @@ int main(void)
   printf ("Select a IV\n");
   CS535_select_random_iv(iv,KEY_LEN);
 
-
-  printf ("Set up AES128CBC for encryption and decryption\n");
-
+    
   memset(endata,0,sizeof(endata));
   memset(dedata,0,sizeof(endata));
 
-  CS535_setup_for_encryption(key, iv);
-  CS535_setup_for_decryption(key,iv);
-  printf ("The cipher ctx shows the required key length: %d bytes\n", EVP_CIPHER_CTX_key_length(&ctx));
  
   printf ("Start encryption data: %s\n", data);
   if(CS535_encrypt(data, strlen(data), endata, &enlen) < 0 ) {
@@ -221,8 +219,6 @@ int main(void)
   printf (" Encrypted data length %d\n", enlen);
   
   printf ("Start decryption\n");
-  //printf (" Data to be decryptd: %s\n", endata);
-
   if (CS535_decrypt(endata,enlen, dedata, &delen) < 0) {
     return;
   }
