@@ -1,0 +1,8 @@
+Steps to generate a CA cert
+============================
+
+mkdir CA private certs
+
+create the cs535B_root_CA_only.cnf
+
+openssl req -config cs535B_root_CA_only.cnf -x509 -sha1 -newkey rsa -nodes -out CA/cacertRSA.pem -keyout private/cakeyRSA.pem -keyform PEM -days 7300 -set_serial 000001
