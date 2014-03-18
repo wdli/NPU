@@ -1,0 +1,100 @@
+[ ca ]
+default_ca = local_ca
+
+#*******************************************************************************
+# The default location for the directories and files needed to generate 
+# certificates.
+# RSA keys version
+#*******************************************************************************
+[ local_ca ]
+dir            = ./CA
+certificate    = CA/cacertRSA.pem
+private_key    = private/cakeyRSA.pem
+database       = ./index.txt
+certs          = certs
+new_certs_dir  = certs
+serial         = serial
+unique_subject = yes
+preserve       = yes
+
+#*******************************************************************************
+# The default expiration and encryption policies for certificates
+# Use SHA1 for the hash function and a cert is good for one 1 year at a time.
+#*******************************************************************************
+default_days     = 7300        # 20 years
+default_md       = sha1
+
+#*******************************************************************************
+# The default CRL setup
+# The CRL is updated every 30 days
+#*******************************************************************************
+crl_dir          = crl
+crl              = crl/crl.pem
+default_crl_days = 30
+
+#*******************************************************************************
+# The policy and the x509 extensions
+#*******************************************************************************
+policy          = server_policy
+x509_extensions = server_extensions
+
+#*******************************************************************************
+# The default policy to use when generating certificates. The following
+# fields must be defined in the server certificate.
+#*******************************************************************************
+[ server_policy ]
+commonName             = supplied
+stateOrProvinceName    = supplied
+countryName            = supplied
+emailAddress           = supplied
+organizationName       = supplied
+organizationalUnitName = supplied
+
+#*******************************************************************************
+# x509 extensions to use when signing certificates.
+# For certs we sign, the cert can not be used as a CA cert
+#*******************************************************************************
+[ server_extensions ]
+basicConstraints        = critical, CA:TRUE
+keyUsage                = cRLSign, keyCertSign
+subjectKeyIdentifier    = hash
+authorityKeyIdentifier  = keyid, issuer:always
+
+[ req ]
+dir             = certs
+default_bits    = 4096
+certificate     = certs/cacertRSA.pem
+default_keyfile = private/cakeyRSA.pem
+default_md      = sha1
+string_mask     = nombstr
+prompt          = no
+
+distinguished_name = root_ca_distinguished_name
+x509_extensions    = root_ca_extensions
+attributes         = root_ca_attributes
+
+#*******************************************************************************
+# The root certificate authority distinguished name.
+#*******************************************************************************
+[ root_ca_distinguished_name ]
+countryName                 = US
+stateOrProvinceName         = California
+localityName                = Fremont
+0.organizationName          = NPU CS535B CA
+organizationalUnitName      = NPU CS535B David Li CA
+
+commonName          = NPU CS CA
+emailAddress        = david.li@mail.npu.edu
+
+[ root_ca_extensions ]
+nsCertType             = sslCA
+
+basicConstraints        = critical, CA:TRUE
+keyUsage                = cRLSign, keyCertSign
+subjectKeyIdentifier    = hash
+authorityKeyIdentifier  = keyid, issuer:always
+
+#*******************************************************************************
+# Attributes for the the root certificate
+#*******************************************************************************
+[ root_ca_attributes ]
