@@ -21,8 +21,25 @@ Steps to generate end entity key using the CA
 #
 cs535B_entity_RSA.cnf
 
-# create a CSR
+# create a CSR and sign it
 
 openssl req -config cs535B_entity_RSA.cnf -newkey rsa:2048 -nodes -keyout private/cs535B_entity_key_RSA.pem -out cs535B_entity_CSR.pem -days 3600
 
+# to view the CSR
 
+openssl req -in cs535B_entity_CSR.pem -text -noout
+
+# create a cert for the entity
+
+rm -f index.txt
+touch index.txt
+
+touch serial
+echo 01 > serial
+
+openssl ca -batch -config cs535B_entity_RSA.cnf -in cs535B_entity_CSR.pem -out cs535B_entity_cert_temp.pem
+openssl x509 -in cs535B_entity_cert_temp.pem -out certs/cs535B_entity_cert.pem
+
+# To view the entity cert
+
+openssl x509 -in certs/cs535B_entity_cert.pem -text -noout
