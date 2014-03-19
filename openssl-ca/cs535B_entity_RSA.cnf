@@ -1,0 +1,109 @@
+KEY_SIZE               = 2048
+KEY_COUNTRY            = US
+KEY_PROVINCE           = CA
+KEY_CITY               = Fremont
+KEY_ORG                = NPU
+KEY_ORGUNIT            = CS535B
+KEY_EMAIL              = david.li@mail.npu.edu
+HOME                   = .
+KEY_DIR                = $HOME/certs
+RANDFILE               = $HOME/.rnd
+
+#############################################################
+openssl_conf           = openssl_init
+
+[ openssl_init ]
+
+oid_section            = new_oids
+engines                = engine_section
+
+[ new_oids ]
+
+[ engine_section ]
+
+[ ca ]
+
+default_ca             = CA_default
+
+[ CA_default ]
+
+dir                    = .
+certs                  = $dir/certs
+crl_dir                = $dir/crl
+database               = $dir/index.txt
+new_certs_dir          = $dir
+certificate            = $dir/CA/cacertRSA.pem
+serial                 = $dir/serial
+crl                    = $crl_dir/crl.pem
+private_key            = $dir/private/cakeyRSA.pem
+RANDFILE               = $dir/.rand
+x509_extensions        = usr_cert
+default_days           = 7300
+default_crl_days       = 30
+default_md             = sha1
+preserve               = no
+policy                 = policy_match
+
+[ policy_match ]
+
+countryName            = optional
+countryName            = optional
+stateOrProvinceName    = optional
+organizationName       = optional
+organizationalUnitName = optional
+commonName             = supplied
+emailAddress           = optional
+
+[ policy_anything ]
+
+countryName            = optional
+stateOrProvinceName    = optional
+localityName           = optional
+organizationName       = optional
+organizationalUnitName = optional
+commonName             = supplied
+emailAddress           = optional
+
+[ req ]
+
+default_bits           = 2048
+default_keyfile        = private/privkeyRSA.pem
+distinguished_name     = req_distinguished_name
+attributes             = req_attributes
+x509_extensions        = v3_ca
+string_mask            = nombstr
+prompt                 = no
+
+[ req_distinguished_name ]
+countryName            = US
+stateOrProvinceName    = California
+localityName           = Fremont
+0.organizationName     = NPU
+organizationalUnitName = CS535B
+commonName             = david.li
+emailAddress           = david.li@mail.npu.edu
+
+[ req_attributes ]
+
+[ usr_cert ]
+
+basicConstraints       = CA:FALSE
+
+[ server ]
+
+basicConstraints       = CA:FALSE
+
+[ v3_req ]
+
+basicConstraints       = CA:FALSE
+keyUsage               = nonRepudiation,digitalSignature,keyEncipherment
+
+[ v3_ca ]
+
+subjectKeyIdentifier   = hash
+authorityKeyIdentifier = keyid:always,issuer:always
+basicConstraints       = CA:true
+
+[ crl_ext ]
+
+authorityKeyIdentifier = keyid:always,issuer:always
