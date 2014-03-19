@@ -1,8 +1,28 @@
 Steps to generate a CA cert
 ============================
 
+# create directory structures:
 mkdir CA private certs
 
+# create an openssl config file for this purpose:
 create the cs535B_root_CA_only.cnf
 
+# Generate a self-signed root cert:
 openssl req -config cs535B_root_CA_only.cnf -x509 -sha1 -newkey rsa -nodes -out CA/cacertRSA.pem -keyout private/cakeyRSA.pem -keyform PEM -days 7300 -set_serial 000001
+
+# To view the CA cert in readable format
+openssl x509 -in CA/cacertRSA.pem -text -noout| less
+
+
+Steps to generate end entity key using the CA
+===============================================
+
+# create an end entity configuration file
+#
+cs535B_entity_RSA.cnf
+
+# create a CSR
+
+openssl req -config cs535B_entity_RSA.cnf -newkey rsa:2048 -nodes -keyout private/cs535B_entity_key_RSA.pem -out cs535B_entity_CSR.pem -days 3600
+
+
