@@ -43,3 +43,9 @@ openssl x509 -in cs535B_entity_cert_temp.pem -out certs/cs535B_entity_cert.pem
 # To view the entity cert
 
 openssl x509 -in certs/cs535B_entity_cert.pem -text -noout
+
+To verify the certificate
+===========================
+
+openssl verify -CAfile ./CA/cacertRSA.pem ./certs/cs535B_entity_cert.pem
+
