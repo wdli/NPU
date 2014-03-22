@@ -38,6 +38,7 @@ touch serial
 echo 01 > serial
 
 openssl ca -batch -config cs535B_entity_RSA.cnf -in cs535B_entity_CSR.pem -out cs535B_entity_cert_temp.pem
+
 openssl x509 -in cs535B_entity_cert_temp.pem -out certs/cs535B_entity_cert.pem
 
 # To view the entity cert
