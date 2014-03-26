@@ -1,0 +1,12 @@
+# To use smime to encrypt text file or email using user's public key
+openssl smime -encrypt -in myemail.txt -des3 -out myemail.txt.enc ../openssl-ca/certs/cs535B_entity_cert.pem
+
+
+# To decrypt the message using receiver's match pub and pri keys
+openssl smime -decrypt -in myemail.txt.enc -recip ../openssl-ca/certs/cs535B_entity_cert.pem -inkey ../openssl-ca/private/cs535B_entity_key_RSA.pem -out myemail.txt.enc.decrypt
+
+# To sign a message using pub and pri keys. Note the pub key cert is inlucded in the signed message
+openssl smine -sign -in myemail.txt -signer ../openssl-ca/certs/cs535B_entity_cert.pem -inkey ../openssl-ca/private/cs535B_entity_key_RSA.pem -out myemail.txt.signed
+
+# To verfiy a message signature using CA
+openssl smime -verify -in myemail.txt.signed -out myemail.txt.verified  -CAfile ../openssl-ca/CA/cacertRSA.pem
