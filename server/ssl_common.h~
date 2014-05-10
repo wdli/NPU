@@ -1,0 +1,16 @@
+#include <openssl/bio.h>
+#include <openssl/err.h>
+#include <openssl/rand.h>
+#include <openssl/ssl.h>
+#include <openssl/x509v3.h>
+
+#include <pthread.h>
+
+#define THREAD_CC
+#define THREAD_TYPE pthread_t
+#define THREAD_CREAT(tid, entry, arg) pthread_create(&(tid), NULL, (entry), (arg))
+
+#define PORT 6001
+#define SERVER localhost
+#define CLIENT localhost
+
