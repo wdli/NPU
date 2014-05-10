@@ -1,0 +1,19 @@
+Centos6.4 SW Dev Install
+-------------------------
+Added initial cs535_sysmmetric_cipher.c
+To compile, do "gcc -g -lssl -o cs535_sysmmetric_cipher cs535_sysmmetric_cipher.c"
+
+
+For Ubuntu users, download openssl tarball:
+------------------------------------------------
+wget http://www.openssl.org/source/openssl-1.0.1f.tar.gz
+tar xvf 
+cd openssl-dir
+./config
+sudo make install
+
+gcc cs535_sysmmetric_cipher.c -o cs535 -I/usr/local/ssl/include -L/usr/local/ssl/lib -lcrypto -lssl -ldl
+
+or 
+
+gcc cs535_sysmmetric_cipher.c -o cs535 -I/usr/local/ssl/include -L/usr/local/ssl/lib -lcrypto -ldl # without -lssl
