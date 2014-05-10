@@ -1,0 +1,1 @@
+Server: gcc -o ssl_server -g -lssl ssl_common.c ssl_server.c
