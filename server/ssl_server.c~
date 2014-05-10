@@ -1,0 +1,40 @@
+#include "ssl_common.h"
+
+
+
+
+
+
+int main(int argc, char * argv[])
+{
+  
+  BIO * acc, * client;
+  THREAD_TYPE tid;
+
+  init_OpenSSL();
+  
+  acc = BIO_new_accept(PORT);
+  if (!acc) {
+    int_error("Error creating SSL server socket");
+  }
+  
+  if (BIO_do_accept(acc) <= 0) {
+    int_error("Error binding SSL server socket");
+  }
+
+  for (;;) {
+
+    if (BIO_do_accept(acc) <= 0 ) {
+      int_error("Error SSL server accepting connection");
+    }
+    
+    client = BIO_pop(acc);
+    THREAD_CREATE(tid, ssl_server_thread, client);
+    
+
+  }
+
+  BIO_free(acc);
+  return 0;
+
+}
