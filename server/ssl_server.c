@@ -1,3 +1,15 @@
+/*
+ * ssl_server.c
+ *
+ * Simple SSL server
+ *
+ * Create 5/14/14
+ *
+ * Usage:
+ *
+ *
+ */
+
 #include "ssl_common.h"
 
 
@@ -9,6 +21,7 @@ static void do_server_loop(BIO * conn)
   int done, err, nread;
   char buf[80];
 
+  fprintf(stderr, "server loop\n");
   do {
     for (nread = 0; nread < sizeof(buf); nread += err) {
       err = BIO_read(conn, buf+nread, sizeof(buf) - nread);
@@ -18,6 +31,8 @@ static void do_server_loop(BIO * conn)
       }
 
       fwrite(buf, 1, nread, stdout);
+      fflush(stdout);
+
     } 
   }while (err > 0);
 
