@@ -6,5 +6,7 @@ server:
 
 all: client server
 
+.PHONY: all
+
 clean:
-	rm -f *.o
+	rm -f ssl_client ssl_server

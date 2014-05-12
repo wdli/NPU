@@ -1,3 +1,17 @@
+/*
+ * ssl_client.c
+ *
+ * Simple SSL client
+ *
+ * Create 5/12/14
+ *
+ * Usage:
+ *      
+ *
+ * Bug: Need to press Enter twice for the server to display messages
+ *
+ */
+
 #include "ssl_common.h"
 
 /* 
@@ -12,19 +26,27 @@ do_client_loop(BIO* conn)
 
   for (;;) {
 
+    memset(buf,0, sizeof(buf));
+
     if (!fgets(buf, sizeof(buf), stdin))
       break;
 
-    fprintf(stderr, "Done input!\n");
-    for (nwritten = 0; nwritten < sizeof(buf); nwritten += err){
+    fprintf(stderr, "Done input: len %d, %s", strlen(buf), buf);
+
+    for (nwritten = 0; nwritten < strlen(buf); nwritten += err){
+
       err = BIO_write(conn, buf + nwritten, strlen(buf) - nwritten);
-      
+      BIO_flush(conn);
+      printf("Done sending\n");
+
       if (err < 0){
+	fprintf(stderr, "Error in bio write\n");
 	return;
       }
 
     }
   }
+
 }
 
 
