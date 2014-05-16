@@ -1,0 +1,10 @@
+To create a cancatenated server cert using user cert, user key and CA:
+----------------------------------------------------------------------
+
+
+#cat cs535B_entity_cert.pem cs535B_entity_key_RSA.pem cacertRSA.pem > cs535B_server_cert.pem
+
+#openssl x509 -subject -issuer -noout -in cs535B_server_cert.pem 
+subject= /C=US/ST=California/O=NPU/OU=CS535B/CN=david.li/emailAddress=david.li@mail.npu.edu
+issuer= /C=US/ST=California/L=Fremont/O=NPU CS535B CA/OU=NPU CS535B David Li CA/CN=NPU CS CA/emailAddress=david.li@mail.npu.edu
+
