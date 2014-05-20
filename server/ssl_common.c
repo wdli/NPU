@@ -25,7 +25,9 @@ void init_OpenSSL(void)
     fprintf(stderr, "Pthread init failed\n");
     exit(-1);
   }
-  OPENSSL_init_library();
+
+  OpenSSL_add_all_algorithms();
+  SSL_library_init();
   SSL_load_error_strings();
 }
 

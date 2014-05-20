@@ -13,7 +13,7 @@
 #include "ssl_common.h"
 
 
-#define SERVER_CERT "cs535B_server_cert2.pem"
+#define SERVER_CERT "servercert2.pem"
 
 /*
  * setup_server_ctx
@@ -22,14 +22,20 @@ static SSL_CTX * setup_server_ctx(void)
 {
   SSL_CTX *ctx;
 
-  ctx = SSL_CTX_new(SSLv23_method()); // handle only SSL v2 and v3
-
+  ctx = SSL_CTX_new(SSLv23_client_method()); // handle only SSL v2 and v3
+  if (!ctx) {
+    int_error("Error in creating SSL ctx\n");
+    return 0;
+  }
+  
+  fprintf(stderr,"Loading server certificate %s\n", SERVER_CERT);
   if (SSL_CTX_use_certificate_chain_file(ctx,SERVER_CERT) != 1) {
     int_error("Error loading server certificate");
   }
   
+  fprintf(stderr,"Loading server private key\n");
   if (SSL_CTX_use_PrivateKey_file(ctx, SERVER_CERT, SSL_FILETYPE_PEM) != 1) {
-    int_error("Error loading server private key");
+    int_error("Error Loading server private key");
   }
 
   return ctx;
