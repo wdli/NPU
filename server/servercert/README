@@ -8,3 +8,16 @@ To create a cancatenated server cert using user cert, user key and CA:
 subject= /C=US/ST=California/O=NPU/OU=CS535B/CN=david.li/emailAddress=david.li@mail.npu.edu
 issuer= /C=US/ST=California/L=Fremont/O=NPU CS535B CA/OU=NPU CS535B David Li CA/CN=NPU CS CA/emailAddress=david.li@mail.npu.edu
 
+#
+#How to test a cert using openssl cmd line?
+#
+
+openssl s_server -cert cert.pem -www
+
+#Use:
+openssl s_client -connect <host:4433> 
+
+#to connect to the above server
+#OR use browser to look at: 
+https://<host:4433>
+
