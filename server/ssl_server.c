@@ -13,7 +13,9 @@
 #include "ssl_common.h"
 
 
-#define SERVER_CERT "servercert2.pem"
+#define SERVERCERT "servercert2.pem"
+#define CAFILE "root.pem"
+#define CADIR NULL
 
 /*
  * setup_server_ctx
@@ -28,16 +30,39 @@ static SSL_CTX * setup_server_ctx(void)
     return 0;
   }
   
-  fprintf(stderr,"Loading server certificate %s\n", SERVER_CERT);
-  if (SSL_CTX_use_certificate_chain_file(ctx,SERVER_CERT) != 1) {
+  // loading CA
+  //
+  fprintf(stderr,"Loading CA certificate %s\n", CAFILE);
+  if (SSL_CTX_load_verify_locations(ctx, CAFILE, CADIR) != 1) {
+    int_error("Error loading CA file");
+  }
+
+  /*
+  if (SSL_CTX_set_default_verify_paths(ctx) != 1){
+    int_error("Error loading default CA ");
+  }
+  */
+
+  // loading server cert
+  // 
+  fprintf(stderr,"Loading server certificate %s\n", SERVERCERT);
+  if (SSL_CTX_use_certificate_chain_file(ctx,SERVERCERT) != 1) {
     int_error("Error loading server certificate");
   }
   
   fprintf(stderr,"Loading server private key\n");
-  if (SSL_CTX_use_PrivateKey_file(ctx, SERVER_CERT, SSL_FILETYPE_PEM) != 1) {
+  if (SSL_CTX_use_PrivateKey_file(ctx, SERVERCERT, SSL_FILETYPE_PEM) != 1) {
     int_error("Error Loading server private key");
   }
 
+  // how to verify
+  //
+  fprintf(stderr,"Set client verification policy\n");
+  SSL_CTX_set_verify(ctx, SSL_VERIFY_PEER /* |SSL_VERIFY_FAIL_IF_NO_PEER_CERT */,
+		     verify_callback);
+  
+  SSL_CTX_set_verify_depth(ctx, 4);
+  
   return ctx;
 
 }
@@ -88,7 +113,7 @@ void * ssl_server_thread(void * arg)
   if (SSL_accept(client) <= 0) {
     int_error("Error accepting SSL connection");
   }
-
+  // TBD post_connection_check
   
   fprintf(stderr,"SSL server connection opened\n");
   
@@ -145,14 +170,18 @@ int main(int argc, char * argv[])
     if (BIO_do_accept(acc) <= 0 ) {
       int_error("Error SSL server accepting connection");
     }
-    
+    fprintf(stderr,"Accepted a connection from client\n");
+
     client = BIO_pop(acc);
     if ( !(ssl = SSL_new(ctx))) {
       int_error("Error creating SSL object");
     }
+    fprintf(stderr,"Popped a client BIO object\n");
 
+    SSL_set_accept_state(ssl);
     SSL_set_bio(ssl, client, client);
 
+    fprintf(stderr,"Creating a server thread to handle client request\n");
     THREAD_CREATE(tid, &ssl_server_thread, ssl);
     
     

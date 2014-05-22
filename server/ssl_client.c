@@ -14,6 +14,9 @@
 
 #include "ssl_common.h"
 
+#define CLIENTCERT "clientcert.pem"
+#define CAFILE "root.pem"
+#define CADIR NULL
 
 /*
  * setup_client_txt
@@ -24,8 +27,35 @@ static SSL_CTX * setup_client_ctx(void)
   SSL_CTX * ctx;
   
   ctx = SSL_CTX_new(SSLv23_method());
+  if (!ctx) {
+    int_error("Error in creating client SSL CTX\n");
+  }
+
+  fprintf(stderr,"Loading CA certificate %s\n",CAFILE);
+  if (SSL_CTX_load_verify_locations(ctx, CAFILE, CADIR) != 1) {
+    int_error("Error loading CA file");
+  }
   
-  // For now we don't ask client to use certificate
+  
+  fprintf(stderr,"Loading client certificate %s\n",CLIENTCERT);
+  if (SSL_CTX_use_certificate_chain_file(ctx, CLIENTCERT) != 1) {
+    int_error("Error in loading client cert file");
+  }
+
+  fprintf(stderr,"Loading client key %s\n");
+  if (SSL_CTX_use_PrivateKey_file(ctx, CLIENTCERT, SSL_FILETYPE_PEM) != 1){
+    int_error("Error in loading client key");
+  }
+
+  // how to verify
+  //
+  fprintf(stderr,"Set server verification policy\n");
+  SSL_CTX_set_verify(ctx, SSL_VERIFY_PEER /* |SSL_VERIFY_FAIL_IF_NO_PEER_CERT */,
+		     verify_callback);
+  
+  SSL_CTX_set_verify_depth(ctx, 4);
+    
+
   return ctx;
 
 }
@@ -104,7 +134,9 @@ int main(int argc, char* argv[])
   if (SSL_connect(ssl) <= 0) {
     int_error("Error creating SSL connection");
   }
-    
+
+  // TBD: post connection check
+
   fprintf(stderr, "Connection from client opened\n");
   if (do_client_loop(ssl)) {
     SSL_shutdown(ssl);
