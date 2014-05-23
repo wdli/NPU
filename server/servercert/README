@@ -32,4 +32,8 @@ openssl s_client -connect 127.0.0.1:4433 -cert clientcert.pem
 #OR use browser to look at: 
 https://<host:4433>
 
+# Reference
+#
+
+http://www.madboa.com/geek/openssl/
 
