@@ -42,7 +42,7 @@ static SSL_CTX * setup_client_ctx(void)
     int_error("Error in loading client cert file");
   }
 
-  fprintf(stderr,"Loading client key %s\n");
+  fprintf(stderr,"Loading client key\n");
   if (SSL_CTX_use_PrivateKey_file(ctx, CLIENTCERT, SSL_FILETYPE_PEM) != 1){
     int_error("Error in loading client key");
   }

@@ -24,7 +24,7 @@ static SSL_CTX * setup_server_ctx(void)
 {
   SSL_CTX *ctx;
 
-  ctx = SSL_CTX_new(SSLv23_client_method()); // handle only SSL v2 and v3
+  ctx = SSL_CTX_new(SSLv23_method()); // handle only SSL v2 and v3
   if (!ctx) {
     int_error("Error in creating SSL ctx\n");
     return 0;
@@ -58,7 +58,7 @@ static SSL_CTX * setup_server_ctx(void)
   // how to verify
   //
   fprintf(stderr,"Set client verification policy\n");
-  SSL_CTX_set_verify(ctx, SSL_VERIFY_PEER /* |SSL_VERIFY_FAIL_IF_NO_PEER_CERT */,
+  SSL_CTX_set_verify(ctx, SSL_VERIFY_NONE /* |SSL_VERIFY_FAIL_IF_NO_PEER_CERT */,
 		     verify_callback);
   
   SSL_CTX_set_verify_depth(ctx, 4);
