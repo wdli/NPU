@@ -1,1 +1,2 @@
 Create 6/2/2014
+sudo pip install paho-mqtt
