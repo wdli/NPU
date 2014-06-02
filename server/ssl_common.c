@@ -4,6 +4,61 @@ static MUTEX_TYPE *mutex_buf;
 
 
 
+/*
+ * post_connection_check
+ */
+long post_connection_check(SSL *ssl, const char *host)
+{
+  X509 *cert;
+  X509_NAME * subj;
+  char data[256];
+
+  int extcount;
+  
+ 
+  if ( !(cert = SSL_get_peer_certificate(ssl)) || !host ) {
+    int_error("Failed to get peer certificate or host");
+  }
+
+  //
+  // get the extension in the certificate
+  //
+  if ( extcount = X509_get_ext_count(cert) > 0 ) {
+    
+    int i;
+    for (i = 0; i < extcount; i++) {
+
+      char * extstr;
+      X509_EXTENSION * ext;
+      
+      ext = X509_get_ext(cert, i);
+      extstr = OBJ_nid2sn(OBJ_obj2nid(X509_EXTENSION_get_object(ext)));
+      
+      fprintf(stderr, " %s\n",extstr);
+    }
+    
+  }// extension
+
+  //
+  // Get the CN
+  //
+  
+  memset(data, 0, 256);
+  if ((subj = X509_get_subject_name(cert)) &&
+      (X509_NAME_get_text_by_NID(subj, NID_commonName, data, 256)) > 0) {
+    
+    data[255] = '\n';
+    fprintf(stderr," CN = %s\n", data);
+  }
+  
+  X509_free(cert);
+  
+  return SSL_get_verify_result(ssl);
+}
+
+
+
+
 
 /*
  * verify_callback
