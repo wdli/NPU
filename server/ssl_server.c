@@ -113,6 +113,10 @@ void * ssl_server_thread(void * arg)
   if (SSL_accept(client) <= 0) {
     int_error("Error accepting SSL connection");
   }
+
+  fprintf(stderr, "Post connection check\n");
+  post_connection_check(client, "localhost");
+
   // TBD post_connection_check
   
   fprintf(stderr,"SSL server connection opened\n");

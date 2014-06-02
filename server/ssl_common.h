@@ -35,9 +35,11 @@
 #define int_error(msg) handle_error(__FILE__,__LINE__,msg)
 
 void handle_error(const char * file, int lineno, const char* msg);
+long post_connection_check(SSL *ssl, const char *host);
 int verify_callback(int ok, X509_STORE_CTX *store);
 
 void init_OpenSSL(void);
+
 
 int THREAD_setup(void);
 int THREAD_cleanup(void);
