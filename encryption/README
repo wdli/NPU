@@ -17,3 +17,4 @@ gcc cs535_sysmmetric_cipher.c -o cs535 -I/usr/local/ssl/include -L/usr/local/ssl
 or 
 
 gcc cs535_sysmmetric_cipher.c -o cs535 -I/usr/local/ssl/include -L/usr/local/ssl/lib -lcrypto -ldl # without -lssl
+On NPU VM1: gcc cs535_sysmmetric_cipher.c -o cs535 -lcrypto -ldl
