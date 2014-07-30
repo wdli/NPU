@@ -22,6 +22,8 @@ static unsigned char  iv[EVP_MAX_IV_LENGTH];
 #define CS535_KEY_FILE "cs535_encryption_key.txt"
 #define CS535_IV_FILE "cs535_encryption_iv.txt"
 
+#define MAX_BUF_LEN 1024
+#define MAX_ENC_LEN 100
 
 /*
  * select_random_key
@@ -141,6 +143,82 @@ CS535_encrypt(unsigned char * data, int datalen, char *enbuf, int *enlen)
   return 0;
 }
 
+
+
+/*
+ * CS535_encrypt2
+ *
+ * Input: data - data to be encrypted
+ *        data_len - data buffer length
+ *        Note: key, IV and CTX are globally-accessible
+ *
+ * Output: enbuf - buffer holds the encrypted data, 
+ *
+ */
+static int
+CS535_encrypt2(unsigned char * data, int datalen, char *enbuf, int *enlen)
+{
+
+  int tmplen = 0;
+  FILE * out;
+  int rc;
+  int i;
+  int ol = 0; // moving index to keep track of encryption progress
+
+  printf (" Data len to be encrypted %d\n", datalen);
+
+  /*  set up the encryption context*/
+  CS535_setup_for_encryption(key, iv);
+
+  /* check the output data buffer len */
+  if ( (datalen + EVP_CIPHER_CTX_block_size(&ctx)) > MAX_BUF_LEN ) {
+    printf (" Output buffer len is too small!\n");
+    return -1;
+  }
+
+  /* start encryption MAX_ENC_LEN at a time*/
+  for ( i=0; i < datalen/MAX_ENC_LEN; i++) {
+    if (!( rc = EVP_EncryptUpdate(&ctx, &enbuf[ol], &tmplen, &data[ol], MAX_ENC_LEN))) {
+      printf (" Encrption error: %d\n",rc);
+      return -1;
+    }    
+    ol += tmplen;
+    printf ("Encrypted %d bytes\n", tmplen);
+  }
+
+  /* Encrypt the last residue length*/
+  if (datalen % MAX_ENC_LEN) {
+    if (!( rc = EVP_EncryptUpdate(&ctx, &enbuf[ol], &tmplen, &data[ol], datalen % MAX_ENC_LEN))) {
+      printf (" Encrption error at the end: %d\n",rc);
+      return -1;
+    }    
+    ol += tmplen;
+    printf ("Encrypted %d bytes at the end\n", tmplen);    
+  }
+
+  printf (" Last len = %d\n",tmplen);
+  
+  /* Finalize */
+  if (!( rc = EVP_EncryptFinal_ex(&ctx, &enbuf[ol], &tmplen))) {
+      printf (" Finalization error: %d\n", rc);
+      return -1;
+  }  
+  ol += tmplen;
+  *enlen = ol;
+
+  printf (" Final len = %d\n", tmplen);
+  printf (" Final total len = %d\n",ol);
+  
+  out = fopen(CS535_EN_FILE,"wb");
+
+  fwrite(enbuf,1,*enlen, out);
+  printf (" Encrypted data saved to file: %s\n", CS535_EN_FILE);
+  printf ("\n");
+
+  return 0;
+}
+
+
 /*
  * CS535_decrypt
  */
@@ -180,6 +258,28 @@ CS535_decrypt(char* data, int datalen, char *debuf, int *delen)
 
 }
 
+/*
+ * CS535_decrypt2
+ */
+static int
+CS535_decrypt2(char* data, int datalen, char *debuf, int *delen)
+{
+
+  if (datalen + EVP_CIPHER_CTX_block_size(&ctx) + 1 > MAX_ENC_LEN) {
+    printf (" Buffer too small for decryption\n");
+    return -1;
+  }
+
+  EVP_DecryptUpdate(&ctx, debuf, delen, data, datalen);
+  if (!*delen) {
+    printf(" Decryption len is zero!");
+    return -1;
+  }
+  printf(" Total decrpted len = %d\n", *delen);
+  return 0;
+
+}
+
 /*****************************************
  * main
  ****************************************/
@@ -189,10 +289,10 @@ int main(void)
 
   char data[] = " Hello CS535B! ";
 
-  char endata[1024];
+  char endata[MAX_BUF_LEN];
   int enlen = 0;
 
-  char dedata[1024];
+  char dedata[MAX_BUF_LEN];
   int  delen = 0;
 
   printf("Hello CS535 Symmetric Cipher \n");
