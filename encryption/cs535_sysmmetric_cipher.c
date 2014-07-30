@@ -23,7 +23,7 @@ static unsigned char  iv[EVP_MAX_IV_LENGTH];
 #define CS535_IV_FILE "cs535_encryption_iv.txt"
 
 #define MAX_BUF_LEN 1024
-#define MAX_ENC_LEN 100
+#define MAX_ENC_LEN 16
 
 /*
  * select_random_key
@@ -164,8 +164,8 @@ CS535_encrypt2(unsigned char * data, int datalen, char *enbuf, int *enlen)
   int rc;
   int i;
   int ol = 0; // moving index to keep track of encryption progress
-
-  printf (" Data len to be encrypted %d\n", datalen);
+  printf ("--------------------------------------------------\n");
+  printf ("Original Data len to be encrypted %d\n", datalen);
 
   /*  set up the encryption context*/
   CS535_setup_for_encryption(key, iv);
@@ -177,13 +177,13 @@ CS535_encrypt2(unsigned char * data, int datalen, char *enbuf, int *enlen)
   }
 
   /* start encryption MAX_ENC_LEN at a time*/
-  for ( i=0; i < datalen/MAX_ENC_LEN; i++) {
+  for ( i=0; i <= datalen/MAX_ENC_LEN; i++) {
     if (!( rc = EVP_EncryptUpdate(&ctx, &enbuf[ol], &tmplen, &data[ol], MAX_ENC_LEN))) {
       printf (" Encrption error: %d\n",rc);
       return -1;
     }    
     ol += tmplen;
-    printf ("Encrypted %d bytes\n", tmplen);
+    printf ("Encrypted %d bytes, total len %d\n", tmplen, ol);
   }
 
   /* Encrypt the last residue length*/
@@ -193,10 +193,9 @@ CS535_encrypt2(unsigned char * data, int datalen, char *enbuf, int *enlen)
       return -1;
     }    
     ol += tmplen;
-    printf ("Encrypted %d bytes at the end\n", tmplen);    
+    printf ("Encrypted %d bytes at the end, total len %d\n", tmplen, ol);    
   }
 
-  printf (" Last len = %d\n",tmplen);
   
   /* Finalize */
   if (!( rc = EVP_EncryptFinal_ex(&ctx, &enbuf[ol], &tmplen))) {
@@ -206,8 +205,8 @@ CS535_encrypt2(unsigned char * data, int datalen, char *enbuf, int *enlen)
   ol += tmplen;
   *enlen = ol;
 
-  printf (" Final len = %d\n", tmplen);
-  printf (" Final total len = %d\n",ol);
+  printf (" Finalize len    = %d\n", tmplen);
+  printf (" Final total len = %d\n", ol);
   
   out = fopen(CS535_EN_FILE,"wb");
 
@@ -264,8 +263,13 @@ CS535_decrypt(char* data, int datalen, char *debuf, int *delen)
 static int
 CS535_decrypt2(char* data, int datalen, char *debuf, int *delen)
 {
+  int rc;
+  int tmplen;
 
-  if (datalen + EVP_CIPHER_CTX_block_size(&ctx) + 1 > MAX_ENC_LEN) {
+  printf("Data len before decryption: %d\n",datalen);
+
+  CS535_setup_for_decryption(key,iv);
+  if (datalen + EVP_CIPHER_CTX_block_size(&ctx) + 1 > MAX_BUF_LEN) {
     printf (" Buffer too small for decryption\n");
     return -1;
   }
@@ -275,7 +279,19 @@ CS535_decrypt2(char* data, int datalen, char *debuf, int *delen)
     printf(" Decryption len is zero!");
     return -1;
   }
-  printf(" Total decrpted len = %d\n", *delen);
+  printf(" Total decrypted len before final = %d\n", *delen);
+
+  /*
+  if ((rc = EVP_DecryptFinal_ex(&ctx, debuf, &tmplen)) == 0) {
+    printf (" Finalization error: %d\n", rc);
+    return -1;
+  }
+
+  *delen += tmplen;
+  */
+  debuf[*delen] = '\0';
+  printf(" Total decrypted len after final = %d\n", *delen);
+
   return 0;
 
 }
@@ -284,10 +300,16 @@ CS535_decrypt2(char* data, int datalen, char *debuf, int *delen)
  * main
  ****************************************/
 
-int main(void)
+int main(int argc, char *argv[])
 {
 
-  char data[] = " Hello CS535B! ";
+  // char data[] = " Hello CS535B! ";
+  if (!argv[1]) {
+    printf ("Missing string to be encrypted!\n");
+    return;
+  }
+
+  char *data = strdup(argv[1]);
 
   char endata[MAX_BUF_LEN];
   int enlen = 0;
@@ -295,31 +317,46 @@ int main(void)
   char dedata[MAX_BUF_LEN];
   int  delen = 0;
 
-  printf("Hello CS535 Symmetric Cipher \n");
+  printf("Hello CS535 Symmetric Cipher Exercise! \n");
+  printf ("String to be encrypted: %s\n", data );
   printf ("--------------------------------\n");
 
+  /* select key and IV*/
   memset(key,0,EVP_MAX_KEY_LENGTH);
   memset(iv,0,EVP_MAX_KEY_LENGTH);
 
-  printf ("Select a key\n");
+  printf ("Selecting a key\n");
   CS535_select_random_key(key,KEY_LEN);
 
-  printf ("Select a IV\n");
+  printf ("Selecting an IV\n");
   CS535_select_random_iv(iv,KEY_LEN);
 
     
   memset(endata,0,sizeof(endata));
   memset(dedata,0,sizeof(endata));
 
- 
-  printf ("Start encryption data: %s\n", data);
-  if(CS535_encrypt(data, strlen(data), endata, &enlen) < 0 ) {
+  /* Encryption */
+  printf ("Start encrypting data: %s\n", data);
+  if(CS535_encrypt2(data, strlen(data), endata, &enlen) < 0 ) {
     return;
   }
   printf (" Encrypted data length %d\n", enlen);
   
-  printf ("Start decryption\n");
-  if (CS535_decrypt(endata,enlen, dedata, &delen) < 0) {
+  /* Ask if continue to decryption */
+  char ans[10];
+  memset(ans,0,10);
+  printf ("Do you want to continue (yes/no)?\n");
+  scanf("%s", ans);
+  printf ("Ans is %s\n",ans);
+  if (strcmp(ans,"yes") != 0 ){
+    printf ("Bye bye!\n");
+    return;
+  }
+  
+  printf ("--------------------------\n");
+  
+  printf ("Start decrypting\n");
+  if (CS535_decrypt2(endata,enlen, dedata, &delen) < 0) {
     return;
   }
   printf (" Decrpted data: %s\n", dedata);
