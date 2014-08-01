@@ -23,7 +23,7 @@ static unsigned char  iv[EVP_MAX_IV_LENGTH];
 #define CS535_IV_FILE "cs535_encryption_iv.txt"
 
 #define MAX_BUF_LEN 1024
-#define MAX_ENC_LEN 16
+#define MAX_ENC_LEN 16 /* The len of the plaintext to be encrypted each time */
 
 /*
  * select_random_key
@@ -147,6 +147,8 @@ CS535_encrypt(unsigned char * data, int datalen, char *enbuf, int *enlen)
 
 /*
  * CS535_encrypt2
+ * This function can encrypt arbitrary long string by working it 
+ * one segment at a time
  *
  * Input: data - data to be encrypted
  *        data_len - data buffer length
@@ -268,6 +270,7 @@ CS535_decrypt2(char* data, int datalen, char *debuf, int *delen)
 
   printf("Data len before decryption: %d\n",datalen);
 
+  /* Need to reinit the ctx obj for decryption!*/
   CS535_setup_for_decryption(key,iv);
   if (datalen + EVP_CIPHER_CTX_block_size(&ctx) + 1 > MAX_BUF_LEN) {
     printf (" Buffer too small for decryption\n");
