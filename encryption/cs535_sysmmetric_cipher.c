@@ -281,14 +281,15 @@ CS535_decrypt2(char* data, int datalen, char *debuf, int *delen)
   }
   printf(" Total decrypted len before final = %d\n", *delen);
 
-  /*
-  if ((rc = EVP_DecryptFinal_ex(&ctx, debuf, &tmplen)) == 0) {
+  /* When finalize, start by skipping the already decrypted data length */  
+  if ((rc = EVP_DecryptFinal_ex(&ctx, debuf+*delen, &tmplen)) == 0) {
     printf (" Finalization error: %d\n", rc);
     return -1;
   }
-
+  printf(" Finalized len %d\n", tmplen);
   *delen += tmplen;
-  */
+
+
   debuf[*delen] = '\0';
   printf(" Total decrypted len after final = %d\n", *delen);
 
@@ -359,7 +360,7 @@ int main(int argc, char *argv[])
   if (CS535_decrypt2(endata,enlen, dedata, &delen) < 0) {
     return;
   }
-  printf (" Decrpted data: %s\n", dedata);
+  printf (" Decrypted data: %s\n", dedata);
   printf (" Decrypted data length %d\n", delen);
 
 
