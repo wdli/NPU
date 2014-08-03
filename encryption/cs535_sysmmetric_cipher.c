@@ -179,7 +179,7 @@ CS535_encrypt2(unsigned char * data, int datalen, char *enbuf, int *enlen)
   }
 
   /* start encryption MAX_ENC_LEN at a time*/
-  for ( i=0; i <= datalen/MAX_ENC_LEN; i++) {
+  for ( i=0; i < datalen/MAX_ENC_LEN; i++) {
     if (!( rc = EVP_EncryptUpdate(&ctx, &enbuf[ol], &tmplen, &data[ol], MAX_ENC_LEN))) {
       printf (" Encrption error: %d\n",rc);
       return -1;
@@ -278,10 +278,10 @@ CS535_decrypt2(char* data, int datalen, char *debuf, int *delen)
   }
 
   EVP_DecryptUpdate(&ctx, debuf, delen, data, datalen);
-  if (!*delen) {
-    printf(" Decryption len is zero!");
+  /*if (!*delen) {
+    printf(" Decrypted len is zero!");
     return -1;
-  }
+  }*/
   printf(" Total decrypted len before final = %d\n", *delen);
 
   /* When finalize, start by skipping the already decrypted data length */  
@@ -322,7 +322,7 @@ int main(int argc, char *argv[])
   int  delen = 0;
 
   printf("Hello CS535 Symmetric Cipher Exercise! \n");
-  printf ("String to be encrypted: %s\n", data );
+  printf ("String to be encrypted: \"%s\"\n", data );
   printf ("--------------------------------\n");
 
   /* select key and IV*/
@@ -363,7 +363,7 @@ int main(int argc, char *argv[])
   if (CS535_decrypt2(endata,enlen, dedata, &delen) < 0) {
     return;
   }
-  printf (" Decrypted data: %s\n", dedata);
+  printf (" Decrypted data: \"%s\"\n", dedata);
   printf (" Decrypted data length %d\n", delen);
 
 
