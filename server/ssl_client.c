@@ -108,11 +108,25 @@ int main(int argc, char* argv[])
   BIO * conn;
   SSL * ssl;
   SSL_CTX * ctx;
+  char server_IP[20];
 
+  if (!argv[1]) {
+    printf ("No server IP address\n");
+    return -1;
+  }
+  memset(server_IP,0,10);
+  strcpy(server_IP, argv[1]);
+  printf (" Server IP is %s\n", server_IP);
+  
+  /* Init SSL and CTX*/
   init_OpenSSL();
   ctx = setup_client_ctx();
-  
-  conn = BIO_new_connect("127.0.0.1" ":" PORT);
+
+  strcat(server_IP,":");
+  strcat(server_IP,PORT);
+  printf ("Connecting to %s\n", server_IP);
+
+  conn = BIO_new_connect(server_IP);
 
   if (!conn) {
     int_error("Error creating connection BIO");
