@@ -8,6 +8,14 @@ To create a cancatenated server cert using user cert, user key and CA:
 subject= /C=US/ST=California/O=NPU/OU=CS535B/CN=david.li/emailAddress=david.li@mail.npu.edu
 issuer= /C=US/ST=California/L=Fremont/O=NPU CS535B CA/OU=NPU CS535B David Li CA/CN=NPU CS CA/emailAddress=david.li@mail.npu.edu
 
+To create a cancatenated client cert using client cert and client key:
+----------------------------------------------------------------------
+
+# cat cs535B_student_cert.pem cs535B_student_key.pem > clientcert.pem
+
+
+To test the server and client cert
+-------------------------------------
 #
 # How to test a cert using openssl cmd line?
 #
