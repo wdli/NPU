@@ -17,7 +17,13 @@ gcc cs535_sysmmetric_cipher.c -o cs535 -I/usr/local/ssl/include -L/usr/local/ssl
 or 
 
 gcc cs535_sysmmetric_cipher.c -o cs535 -I/usr/local/ssl/include -L/usr/local/ssl/lib -lcrypto -ldl # without -lssl
+
+Special Note
+------------
 On NPU VM1: gcc cs535_sysmmetric_cipher.c -o cs535 -lcrypto -ldl
---- Symmetric Encryption Using Openssl ---- 
+
+
+--- Symmetric Encryption Using Openssl cmdline ---- 
+
 openssl enc -aes-128-cbc -base64 -in my_file_plain.txt -out my_file_cipher.text
 openssl enc -d -aes-128-cbc -base64 -in my_file_cipher.text
