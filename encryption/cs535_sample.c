@@ -1,6 +1,6 @@
 
 /* 
- * sample code only!
+ * CS535 block encryption sample code only!
  */
 
 #include <stdio.h>
@@ -95,7 +95,6 @@ CS535_encrypt(unsigned char * data, int datalen, char *enbuf, int *enlen)
  
   EVP_EncryptFinal_ex(&ctx, enbuf+(*enlen), &tmplen)
 
-  *enlen += tmplen;
 
 }
 
@@ -115,31 +114,28 @@ CS535_decrypt(char* data, int datalen, char *debuf, int *delen)
 
   EVP_DecryptFinal_ex(&ctx, debuf, &tmplen)
 
-  *delen += tmplen;
 }
 
 /*****************************************
  * main
  ****************************************/
 
-int main(void)
+int main(argc, argv)
 {
 
-  char data[] = " Hello CS535B! ";
+  char *plain-text-data = strdup(argv[1]);
 
 
   CS535_select_random_key(key,KEY_LEN);
-
-
   CS535_select_random_iv(iv,KEY_LEN);
 
     
 
-  CS535_encrypt(data, strlen(data), endata, &enlen)
+  CS535_encrypt(plain-text-data, strlen(plain-text-data), endata, &enlen)
 
- CS535_decrypt(endata,enlen, dedata, &delen) 
+  CS535_decrypt(endata,enlen, dedata, &delen) 
  
 
-
+  return 0;
 
 }
