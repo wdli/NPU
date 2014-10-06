@@ -1,8 +1,8 @@
 client: 
-	gcc -g -o ssl_client -lssl -lcrypto ssl_common.c ssl_client.c
+	gcc ssl_common.c ssl_client.c -g -o ssl_client -lssl -lcrypto -ldl 
 
 server:
-	gcc -g -o ssl_server -lssl -lcrypto ssl_common.c ssl_server.c
+	gcc ssl_common.c ssl_server.c -g -o ssl_server -lssl -lcrypto -ldl -lpthread
 
 all: client server
 
