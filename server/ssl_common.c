@@ -14,7 +14,7 @@ long post_connection_check(SSL *ssl, const char *host)
   char data[256];
 
   int extcount;
-  
+  FILE * student_file = NULL; 
  
   if ( !(cert = SSL_get_peer_certificate(ssl)) || !host ) {
     int_error("Failed to get peer certificate or host");
@@ -28,7 +28,7 @@ long post_connection_check(SSL *ssl, const char *host)
     int i;
     for (i = 0; i < extcount; i++) {
 
-      char * extstr;
+      const char * extstr;
       X509_EXTENSION * ext;
       
       ext = X509_get_ext(cert, i);
@@ -49,6 +49,16 @@ long post_connection_check(SSL *ssl, const char *host)
     
     data[255] = '\n';
     fprintf(stderr," CN = %s\n", data);
+
+    student_file = fopen ("student_login_record.txt","a");
+    if (!student_file) {
+      fprintf(stderr, " Can't open file to record\n");
+    }
+    else {
+      fprintf(student_file," CN = %s\n", data);
+    }
+    fclose(student_file);
+
   }
   
   X509_free(cert);
