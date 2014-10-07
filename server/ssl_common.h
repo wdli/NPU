@@ -8,6 +8,10 @@
 #include <pthread.h>
 
 
+// file to store students logins
+#define STUDENT_LOGIN_RECORD "student_login_records_fall_2014.txt"
+FILE* student_file;
+
 // pthread stuff
 
 #define MUTEX_TYPE pthread_mutex_t
@@ -43,3 +47,6 @@ void init_OpenSSL(void);
 
 int THREAD_setup(void);
 int THREAD_cleanup(void);
+
+void login_record_init(void);
+

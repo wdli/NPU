@@ -1,4 +1,5 @@
 #include "ssl_common.h"
+#include <time.h>
 
 static MUTEX_TYPE *mutex_buf;
 
@@ -14,7 +15,6 @@ long post_connection_check(SSL *ssl, const char *host)
   char data[256];
 
   int extcount;
-  FILE * student_file = NULL; 
  
   if ( !(cert = SSL_get_peer_certificate(ssl)) || !host ) {
     int_error("Failed to get peer certificate or host");
@@ -47,18 +47,13 @@ long post_connection_check(SSL *ssl, const char *host)
   if ((subj = X509_get_subject_name(cert)) &&
       (X509_NAME_get_text_by_NID(subj, NID_commonName, data, 256)) > 0) {
     
+    time_t now;
+    time(&now);
+
     data[255] = '\n';
     fprintf(stderr," CN = %s\n", data);
-
-    student_file = fopen ("student_login_record.txt","a");
-    if (!student_file) {
-      fprintf(stderr, " Can't open file to record\n");
-    }
-    else {
-      fprintf(student_file," CN = %s\n", data);
-    }
-    fclose(student_file);
-
+    fprintf(student_file,"%s CN = %s\n", ctime(&now), data);
+    fflush(student_file);
   }
   
   X509_free(cert);
@@ -67,7 +62,20 @@ long post_connection_check(SSL *ssl, const char *host)
 }
 
 
+/*
+ * student login record init
+ */
+void login_record_init(void)
+{
 
+   student_file = fopen(STUDENT_LOGIN_RECORD,"w");
+   if (!student_file) {
+        fprintf(stderr,"Error creating a login record file\n");
+        exit(-1);
+   }
+   fprintf(stderr, "Student login records created %s\n", STUDENT_LOGIN_RECORD);
+   return;
+} 
 
 
 /*
