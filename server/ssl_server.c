@@ -168,6 +168,20 @@ int main(int argc, char * argv[])
     int_error("Error binding SSL server socket");
   }
 
+  // Become a daemon
+  pid_t child_pid;
+  switch (child_pid = fork()) {
+     case -1:
+        fprintf(stderr, "Error in fork!\n");
+        exit(-1);
+        break;
+     case 0: // child
+        break; // Child should keep going
+     default: // parent
+        sleep(3); // Give child a chance to grow up:)
+        exit(0); // bye parent
+  }
+         
   // forever loop
   for (;;) {
 
