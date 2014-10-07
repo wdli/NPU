@@ -11,12 +11,40 @@
  */
 
 #include "ssl_common.h"
+#include <signal.h>
 
 
 #define SERVERCERT "servercert2.pem"
 #define CAFILE "root.pem"
 #define CADIR NULL
 
+
+static BIO * acc, * client;
+static SSL *ssl;
+static SSL_CTX *ctx;
+static THREAD_TYPE tid;
+
+/*
+ * sigHandler 
+ */
+static void sigHandler(int no)
+{
+  if (no == SIGTERM) {
+
+    fprintf(stderr, "Termination signal\n");
+    fclose(student_file);
+    SSL_CTX_free(ctx);
+    BIO_free(acc);
+    exit(0);
+
+  }
+  else
+    fprintf(stderr,"Signal received %d\n",no);
+
+  return;
+
+      
+}
 /*
  * setup_server_ctx
  */
@@ -134,6 +162,7 @@ void * ssl_server_thread(void * arg)
   SSL_free(client);
   ERR_remove_state(0);// free a current thread error queue
 
+
 }
 
 
@@ -144,13 +173,15 @@ void * ssl_server_thread(void * arg)
 int main(int argc, char * argv[])
 {
   
-  BIO * acc, * client;
+
+  /*BIO * acc, * client;
   SSL *ssl;
   SSL_CTX *ctx;
-  THREAD_TYPE tid;
+  THREAD_TYPE tid;*/
   
   char * port = PORT; // BIO_new_accept takes only a string for port number
 
+  signal(SIGTERM, sigHandler);
 
   init_OpenSSL();
 
@@ -167,7 +198,7 @@ int main(int argc, char * argv[])
   if (BIO_do_accept(acc) <= 0) {
     int_error("Error binding SSL server socket");
   }
-
+  
   // Become a daemon
   pid_t child_pid;
   switch (child_pid = fork()) {
@@ -181,7 +212,10 @@ int main(int argc, char * argv[])
         sleep(3); // Give child a chance to grow up:)
         exit(0); // bye parent
   }
-         
+ 
+  // create login records
+  login_record_init();
+        
   // forever loop
   for (;;) {
 
@@ -204,7 +238,8 @@ int main(int argc, char * argv[])
     
     
   }
-
+  
+  fclose(student_file);
   SSL_CTX_free(ctx);
   BIO_free(acc);
   return 0;
