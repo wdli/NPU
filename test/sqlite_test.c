@@ -61,6 +61,17 @@ static void close_db(sqlite3 *db)
 }
 
 
+
+static void display_db(sqlite3* db)
+{
+       fprintf(stderr,"+++++++++++++++++++++++++\n");
+       char * sql = "SELECT * FROM " TABLE_NAME;
+       exec_sql_db(db, sql);
+       fprintf(stderr,"-------------------------\n");
+
+}
+
+
 int main(int argc, char* argv[])
 {
 	sqlite3 *db;
@@ -85,12 +96,38 @@ int main(int argc, char* argv[])
                return 0;
         }
         // Insert into the table
+        // TODO: use update for existing records
+        //
+        //
+        // Insert the first record
         time(&now);
         char* ins_time = ctime(&now);
 
         memset(sql_statement, 0, 256);
 	sprintf(sql_statement, "INSERT INTO " TABLE_NAME " (ID, TIME)  VALUES ( %d , '%s' );", id1, ins_time ); 	
-        exec_sql_db(db, sql_statement);
+        if ( exec_sql_db(db, sql_statement) < 0) {
+              // update
+              memset(sql_statement, 0, 256);
+              sprintf(sql_statement,"UPDATE " TABLE_NAME " SET TIME = '%s' WHERE ID = %d;",  ins_time, id1);
+              exec_sql_db(db, sql_statement);
+        }              
+        display_db(db);
+
+        // another insert
+        time(&now);
+        ins_time = ctime(&now);
+
+        memset(sql_statement, 0, 256);
+	sprintf(sql_statement, "INSERT INTO " TABLE_NAME " (ID, TIME)  VALUES ( %d , '%s' );", id2, ins_time ); 	
+        if ( exec_sql_db(db, sql_statement) < 0) {
+              // update
+              memset(sql_statement, 0, 256);
+              sprintf(sql_statement,"UPDATE " TABLE_NAME " SET TIME = '%s' WHERE ID = %d;",  ins_time, id2);
+              exec_sql_db(db, sql_statement);
+        }              
+
+        display_db(db);
+
 
 	// Close DB 
         close_db(db);
