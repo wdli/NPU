@@ -1,1 +1,18 @@
-create test directory
+Sqlite3 development
+===================
+
+yum install sqlite-devel
+
+Sqlite handly command lines
+===========================
+- Start
+sqlite3 test.db
+
+- Check if a table exists
+select count(type) from sqlite_master where type = 'table' and name = 'CS535_STUDENT_FALL14';
+
+- Dump a table
+select * from CS535_STUDENT_FALL14
+
+
+
