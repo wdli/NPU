@@ -1,1 +1,4 @@
 TO compile all: make all
+
+To compile sqlite code, use "-lsqlite3"
+
