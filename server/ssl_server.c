@@ -31,15 +31,17 @@ static void sigHandler(int no)
 {
   if (no == SIGTERM) {
 
-    fprintf(stderr, "Termination signal\n");
+    fprintf(stderr, "Termination signal received, getting out here!\n");
+
     fclose(student_file);
     SSL_CTX_free(ctx);
     BIO_free(acc);
+    sleep(10);
     exit(0);
 
   }
   else
-    fprintf(stderr,"Signal received %d\n",no);
+    fprintf(stderr,"Signal received, not for termination? %d\n",no);
 
   return;
 
@@ -145,8 +147,6 @@ void * ssl_server_thread(void * arg)
   fprintf(stderr, "Post connection check\n");
   post_connection_check(client, "localhost");
 
-  // TBD post_connection_check
-  
   fprintf(stderr,"SSL server connection opened\n");
   
   if (do_server_loop(client)) {
@@ -183,6 +183,7 @@ int main(int argc, char * argv[])
 
   signal(SIGTERM, sigHandler);
 
+  // Overall SSL init
   init_OpenSSL();
 
   // set up server's SSL context  
@@ -210,6 +211,7 @@ int main(int argc, char * argv[])
         break; // Child should keep going
      default: // parent
         sleep(3); // Give child a chance to grow up:)
+	fprintf(stderr, "Bye child, I am going home!\n");
         exit(0); // bye parent
   }
  
@@ -239,7 +241,7 @@ int main(int argc, char * argv[])
     
   }
   
-  fclose(student_file);
+  login_record_cleanup();
   SSL_CTX_free(ctx);
   BIO_free(acc);
   return 0;
