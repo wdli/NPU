@@ -8,6 +8,7 @@
 #include <pthread.h>
 
 
+
 // file to store students logins
 #define STUDENT_LOGIN_RECORD "student_login_records_fall_2014.txt"
 FILE* student_file;
@@ -32,7 +33,7 @@ FILE* student_file;
 
 // port server, client addresses
 
-#define PORT "6001"
+#define PORT "6001" /* for npu240.npu.edu VM */
 #define SERVER localhost
 #define CLIENT localhost
 
@@ -49,4 +50,4 @@ int THREAD_setup(void);
 int THREAD_cleanup(void);
 
 void login_record_init(void);
-
+void login_record_cleanup(void);

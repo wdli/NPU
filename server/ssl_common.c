@@ -1,7 +1,9 @@
 #include "ssl_common.h"
 #include <time.h>
+#include "sqlite_db.h"
 
 static MUTEX_TYPE *mutex_buf;
+static sqlite3 * db;
 
 
 
@@ -64,19 +66,41 @@ long post_connection_check(SSL *ssl, const char *host)
 
 /*
  * student login record init
+ * 
+ * We can use a file to store login record and 
+ * use a sql database
+ *
  */
 void login_record_init(void)
 {
-
+  
+  // Set up a file
    student_file = fopen(STUDENT_LOGIN_RECORD,"w");
    if (!student_file) {
         fprintf(stderr,"Error creating a login record file\n");
         exit(-1);
    }
    fprintf(stderr, "Student login records created %s\n", STUDENT_LOGIN_RECORD);
+
+   // Set up a table in the database
+   if (open_db(&db, DB_NAME) < 0 ) {
+     fprintf(stderr, "open_db failed!\n");
+     exit(-1);
+   }
+   fprintf(stderr, "Student login database created %s\n", DB_NAME);
+
    return;
 } 
 
+void login_record_cleanup(void)
+{
+  // clean up the file descriptor 
+  fclose(student_file);
+
+  // close the db
+  close_db(db);
+
+}
 
 /*
  * verify_callback
