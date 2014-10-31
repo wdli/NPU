@@ -1,8 +1,8 @@
 client: 
-	gcc ssl_common.c ssl_client.c -g -o ssl_client -lssl -lcrypto -ldl 
+	gcc sqlite_db.c ssl_common.c ssl_client.c -g -o ssl_client -lssl -lcrypto -ldl -lsqlite3
 
 server:
-	gcc ssl_common.c ssl_server.c -g -o ssl_server -lssl -lcrypto -ldl -lpthread
+	gcc sqlite_db.c ssl_common.c ssl_server.c -g -o ssl_server -lssl -lcrypto -ldl -lpthread -lsqlite3
 
 all: client server
 
