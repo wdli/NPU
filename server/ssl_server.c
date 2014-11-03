@@ -14,8 +14,13 @@
 #include <signal.h>
 
 
-#define SERVERCERT "servercert2.pem"
-#define CAFILE "root.pem"
+//#define SERVERCERT "servercert2.pem"
+//#define CAFILE "root.pem"
+
+/* CS535A Fall Project */
+#define SERVERCERT "cs535_server_cert_fall14.pem"
+#define CAFILE "cs535_CA_cert_fall14.pem"
+
 #define CADIR NULL
 
 
