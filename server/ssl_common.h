@@ -33,7 +33,7 @@ FILE* student_file;
 
 // port server, client addresses
 
-#define PORT "6001" /* for npu240.npu.edu VM */
+#define PORT "6001" /* for npu24[0,1].npu.edu VM */
 #define SERVER localhost
 #define CLIENT localhost
 
