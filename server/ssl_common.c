@@ -13,7 +13,7 @@ static int record_in_db(char* id, char* ins_time)
   char sql_statement[256];
 
   memset(sql_statement, 0, 256);
-  sprintf(sql_statement, "INSERT INTO " TABLE_NAME " (ID, TIME)  VALUES ( %d , '%s' );", id, ins_time ); 	
+  sprintf(sql_statement, "INSERT INTO " TABLE_NAME " (ID, TIME)  VALUES ( %d , '%s' );", atoi(id), ins_time ); 	
 
   // Try to insert a new record, if not then update
   if ( exec_sql_db(db, sql_statement) < 0) {
