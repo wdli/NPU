@@ -14,8 +14,15 @@
 
 #include "ssl_common.h"
 
-#define CLIENTCERT "clientcert.pem"
-#define CAFILE "root.pem"
+//#define CLIENTCERT "studentcert.pem"
+
+//#define CAFILE "cacertRSA.pem"
+//#define CAFILE "cacertRsaFall14.pem"
+
+/* CS535 Fall Project */
+#define CLIENTCERT "cs535_student_cert_fall14.pem"
+#define CAFILE "cs535_CA_cert_fall14.pem"
+
 #define CADIR NULL
 
 /*
