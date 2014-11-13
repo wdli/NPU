@@ -221,7 +221,9 @@ int main(int argc, char * argv[])
   }
  
   // create login records
-  login_record_init();
+  if (login_record_init() < 0) {
+    exit(0);
+  }
         
   // forever loop
   for (;;) {
