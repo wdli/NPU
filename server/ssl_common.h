@@ -49,5 +49,5 @@ void init_OpenSSL(void);
 int THREAD_setup(void);
 int THREAD_cleanup(void);
 
-void login_record_init(void);
+int login_record_init(void);
 void login_record_cleanup(void);
