@@ -7,6 +7,27 @@ static sqlite3 * db;
 
 
 
+
+static int record_in_db(char* id, char* ins_time)
+{
+  char sql_statement[256];
+
+  memset(sql_statement, 0, 256);
+  sprintf(sql_statement, "INSERT INTO " TABLE_NAME " (ID, TIME)  VALUES ( %d , '%s' );", id, ins_time ); 	
+
+  // Try to insert a new record, if not then update
+  if ( exec_sql_db(db, sql_statement) < 0) {
+    // update
+    memset(sql_statement, 0, 256);
+    sprintf(sql_statement,"UPDATE " TABLE_NAME " SET TIME = '%s' WHERE ID = %d;",  ins_time, id);
+    exec_sql_db(db, sql_statement);
+  }              
+
+  display_db(db);
+  
+  return 0;
+}
+
 /*
  * post_connection_check
  */
@@ -54,7 +75,11 @@ long post_connection_check(SSL *ssl, const char *host)
 
     data[255] = '\n';
     fprintf(stderr," CN = %s\n", data);
+    // Record in file
     fprintf(student_file,"%s CN = %s\n", ctime(&now), data);
+    // Record in db
+    record_in_db(data, ctime(&now));
+
     fflush(student_file);
   }
   
@@ -71,7 +96,7 @@ long post_connection_check(SSL *ssl, const char *host)
  * use a sql database
  *
  */
-void login_record_init(void)
+int login_record_init(void)
 {
   
   // Set up a file
@@ -85,9 +110,19 @@ void login_record_init(void)
    // Set up a table in the database
    if (open_db(&db, DB_NAME) < 0 ) {
      fprintf(stderr, "open_db failed!\n");
-     exit(-1);
+     return -1;
    }
    fprintf(stderr, "Student login database created %s\n", DB_NAME);
+
+   // Create a table for student records
+   char sql_statement[256];
+   sprintf(sql_statement, "CREATE TABLE IF NOT EXISTS " TABLE_NAME  "(ID CHAR(10) PRIMARY KEY NOT NULL,TIME CHAR(128));");
+
+   if (exec_sql_db(db, sql_statement) < 0 ) {
+     fprintf(stderr,"failed to create table\n");
+     return -1;
+   }
+   fprintf(stderr, "Student login table created %s\n", TABLE_NAME);
 
    return;
 } 
