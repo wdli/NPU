@@ -12,6 +12,7 @@ function log()
     TIME=$(date)
 
     echo "$TIME Logging message: $MSG"
+    echo ""
     echo "$TIME: $MSG">>$LOG
     
     return
@@ -21,7 +22,13 @@ function log()
 function ssl_server_monitor()
 {
     SSL_SERVER_PID=$(pidof ssl_server)
-    [ -z ${SSL_SERVER_PID} ] && { log "No ssl_server running, restart it" ; ./ssl_server; return; }
+    if [ -z ${SSL_SERVER_PID} ]; then
+	log "No ssl_server running, restart it"  
+  	./ssl_server 
+	wait
+        log "New ssl_server id is: $(pidof ssl_server)" 
+	return
+    fi
 
     log "ssl_server id is runing: ${SSL_SERVER_PID}"
     return
@@ -43,8 +50,8 @@ echo "start monitoring" > $LOG
 
 while true
 do
-    sleep $SLEEP_TIME
     ssl_server_monitor
+    sleep $SLEEP_TIME
 done
 
 log "$FUNCNAME: end monitoring"
