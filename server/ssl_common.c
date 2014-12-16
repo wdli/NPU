@@ -41,6 +41,7 @@ long post_connection_check(SSL *ssl, const char *host)
  
   if ( !(cert = SSL_get_peer_certificate(ssl)) || !host ) {
     int_error("Failed to get peer certificate or host");
+    return 0; //SSL_get_verify_result(ssl);
   }
 
   //

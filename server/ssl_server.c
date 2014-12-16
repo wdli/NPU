@@ -147,6 +147,7 @@ void * ssl_server_thread(void * arg)
   // 
   if (SSL_accept(client) <= 0) {
     int_error("Error accepting SSL connection");
+    return;
   }
 
   fprintf(stderr, "Post connection check\n");
@@ -166,7 +167,7 @@ void * ssl_server_thread(void * arg)
   // BIO_free(client);
   SSL_free(client);
   ERR_remove_state(0);// free a current thread error queue
-
+  return;
 
 }
 
@@ -236,6 +237,7 @@ int main(int argc, char * argv[])
     client = BIO_pop(acc);
     if ( !(ssl = SSL_new(ctx))) {
       int_error("Error creating SSL object");
+      continue;
     }
     fprintf(stderr,"Popped a client BIO object\n");
 
@@ -244,8 +246,6 @@ int main(int argc, char * argv[])
 
     fprintf(stderr,"Creating a server thread to handle client request\n");
     THREAD_CREATE(tid, &ssl_server_thread, ssl);
-    
-    
   }
   
   login_record_cleanup();
