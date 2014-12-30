@@ -19,7 +19,7 @@ static int record_in_db(char* id, char* ins_time)
   if ( exec_sql_db(db, sql_statement) < 0) {
     // update
     memset(sql_statement, 0, 256);
-    sprintf(sql_statement,"UPDATE " TABLE_NAME " SET TIME = '%s' WHERE ID = %d;",  ins_time, id);
+    sprintf(sql_statement,"UPDATE " TABLE_NAME " SET TIME = '%s' WHERE ID = %d;",  ins_time, atoi(id));
     exec_sql_db(db, sql_statement);
   }              
 
