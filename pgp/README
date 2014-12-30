@@ -10,3 +10,9 @@ openssl smine -sign -in myemail.txt -signer ../openssl-ca/certs/cs535B_entity_ce
 
 # To verfiy a message signature using CA
 openssl smime -verify -in myemail.txt.signed -out myemail.txt.verified  -CAfile ../openssl-ca/CA/cacertRSA.pem
+
+# Basic GPG symmetric encryption and decryption cmds
+#
+gpg --symmetric --output myemail.txt.symenc myemail.txt
+gpg --decrypt myemail.txt.symenc 
+
