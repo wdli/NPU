@@ -16,3 +16,6 @@ openssl smime -verify -in myemail.txt.signed -out myemail.txt.verified  -CAfile 
 gpg --symmetric --output myemail.txt.symenc myemail.txt
 gpg --decrypt myemail.txt.symenc 
 
+# use AES256
+gpg -c --cipher-algo AES256 --output myemail.txt.aes256 myemail.txt
+
