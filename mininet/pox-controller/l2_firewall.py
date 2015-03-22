@@ -24,6 +24,8 @@ from pox.core import core
 import pox.openflow.libopenflow_01 as of
 from pox.lib.util import dpid_to_str
 from pox.lib.util import str_to_bool
+from pox.lib.addresses import EthAddr
+
 import time
 
 log = core.getLogger()
@@ -32,7 +34,7 @@ log = core.getLogger()
 # Can be overriden on commandline.
 _flood_delay = 0
 
-class LearningSwitch (object):
+class FirewallSwitch (object):
   """
   The learning switch "brain" associated with a single OpenFlow switch.
 
@@ -78,9 +80,15 @@ class LearningSwitch (object):
     self.connection = connection
     self.transparent = transparent
 
-    # Our table
+    # Our table forwarding
     self.macToPort = {}
 
+    # LID: firewall hash table and init with rules
+    self.firewall = {}
+    # LID: add rules to allow h1 and h2 to ping each other
+    self.AddRule('00-00-00-00-00-01',EthAddr('00-00-00-00-00-01'))
+    self.AddRule('00-00-00-00-00-01',EthAddr('00-00-00-00-00-02'))
+    
     # We want to hear PacketIn messages, so we listen
     # to the connection
     connection.addListeners(self)
@@ -88,16 +96,43 @@ class LearningSwitch (object):
     # We just use this to know when to log a helpful message
     self.hold_down_expired = _flood_delay == 0
 
-    #log.debug("Initializing LearningSwitch, transparent=%s",
-    #          str(self.transparent))
+    log.debug("Initializing FirewallSwitch, transparent=%s",
+              str(self.transparent))
 
+  # LID: add firewall rules to block packets with this src MAC
+  def AddRule(self, dpidstr, src = 0, value = True):
+    self.firewall[(dpidstr,src)] = value
+    log.debug("Adding firewall rule in switch %s for src MAC %s", dpidstr, src)
+
+  # LID: check firewall rules
+  def CheckRule(self, dpidstr, src = 0):
+    try:
+      entry = self.firewall[(dpidstr, src)]
+      if entry == True:
+        log.debug("Rule on MAC %s found in %s: FORWARD", src, dpidstr)
+      else:
+        log.debug("Rule on MAC %s found in %s: DROP", src, dpidstr)
+      return entry
+    except KeyError:
+        log.debug("Rule on MAC %s NOT found in %s: DROP", src, dpidstr)
+        return False
+
+  # LID: delete rule from firewall
+  def DeleteRule(self, dpidstr, src = 0):
+    try:
+      del self.firewall[(dpidstr,src)]
+      log.debug("Rule on MAC %s deleted in %s", src, dpidstr)
+    except KeyError:
+      log.error("Rule on MAC %s NOT found in %s", src, dpidstr)
+
+      
   def _handle_PacketIn (self, event):
     """
     Handle packet in messages from the switch to implement above algorithm.
     """
-
+    #import pdb; set_trace()
     packet = event.parsed
-
+    log.info("packet in event!")
     def flood (message = None):
       """ Floods the packet """
       msg = of.ofp_packet_out()
@@ -111,13 +146,13 @@ class LearningSwitch (object):
               dpid_to_str(event.dpid))
 
         if message is not None: log.debug(message)
-        #log.debug("%i: flood %s -> %s", event.dpid,packet.src,packet.dst)
+        log.debug("%i: flood %s -> %s", event.dpid,packet.src,packet.dst)
         # OFPP_FLOOD is optional; on some switches you may need to change
         # this to OFPP_ALL.
         msg.actions.append(of.ofp_action_output(port = of.OFPP_FLOOD))
       else:
         pass
-        #log.info("Holding down flood for %s", dpid_to_str(event.dpid))
+        log.info("Holding down flood for %s", dpid_to_str(event.dpid))
       msg.data = event.ofp
       msg.in_port = event.port
       self.connection.send(msg)
@@ -144,6 +179,17 @@ class LearningSwitch (object):
 
     self.macToPort[packet.src] = event.port # 1
 
+    # LID: Check if the packet from this source is allowed
+    # by firewall
+    dpidstr = dpid_to_str(event.connection.dpid) 
+    if self.CheckRule(dpidstr,packet.src) == False:
+      log.warning("Firewall to drop packet from %s -> %s"
+              % (packet.src, packet.dst))
+      drop()
+      return
+      
+    
+    
     if not self.transparent: # 2
       if packet.type == packet.LLDP_TYPE or packet.dst.isBridgeFiltered():
         drop() # 2a
@@ -184,7 +230,7 @@ class l2_learning (object):
 
   def _handle_ConnectionUp (self, event):
     log.debug("Connection %s" % (event.connection,))
-    LearningSwitch(event.connection, self.transparent)
+    FirewallSwitch(event.connection, self.transparent)
 
 
 def launch (transparent=False, hold_down=_flood_delay):
@@ -198,4 +244,7 @@ def launch (transparent=False, hold_down=_flood_delay):
   except:
     raise RuntimeError("Expected hold-down to be a number")
 
+  import pdb; pdb.set_trace()
+  
   core.registerNew(l2_learning, str_to_bool(transparent))
+
