@@ -91,6 +91,9 @@ class FirewallSwitch (object):
     
     # We want to hear PacketIn messages, so we listen
     # to the connection
+    # LID: again it's a common patter to add itself as a listener in __init__
+    #      here it's done using connection.addListener() interface
+
     connection.addListeners(self)
 
     # We just use this to know when to log a helpful message
@@ -224,9 +227,18 @@ class l2_learning (object):
   """
   Waits for OpenFlow switches to connect and makes them learning switches.
   """
+  # LID: add itself as a listener during initialization
+  #      for ConnectionUp event. It's a common pattern to 
+  #      addListeners in a class __init__. Here it's done
+  #      using core.openflow.addListener() interface
+
   def __init__ (self, transparent):
     core.openflow.addListeners(self)
     self.transparent = transparent
+
+  # handler for ConnectionUp event
+  # also create a FirewallSwitch object instance
+  # and pass the connection object
 
   def _handle_ConnectionUp (self, event):
     log.debug("Connection %s" % (event.connection,))
@@ -245,6 +257,6 @@ def launch (transparent=False, hold_down=_flood_delay):
     raise RuntimeError("Expected hold-down to be a number")
 
   import pdb; pdb.set_trace()
-  
+  # LID: Regisgter l2_learning class with the core 
   core.registerNew(l2_learning, str_to_bool(transparent))
 
