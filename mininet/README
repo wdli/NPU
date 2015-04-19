@@ -1,3 +1,9 @@
+
+To launch a simple 3-hosts, 1-node mininet net, do
+sudo mn --topo=single,3 --mac --controller=remote --switch=ovsk
+
+Then lauch a POX controller to connect to the net
+
 ------------------
 
 This is the minite related code
