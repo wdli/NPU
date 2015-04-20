@@ -241,7 +241,7 @@ class l2_learning (object):
   # and pass the connection object
 
   def _handle_ConnectionUp (self, event):
-    log.debug("Connection %s" % (event.connection,))
+    log.debug("LID Connection %s" % (event.connection,))
     FirewallSwitch(event.connection, self.transparent)
 
 
