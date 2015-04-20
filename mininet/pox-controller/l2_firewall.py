@@ -27,6 +27,7 @@ from pox.lib.util import str_to_bool
 from pox.lib.addresses import EthAddr
 
 import time
+import os
 
 log = core.getLogger()
 
@@ -103,6 +104,10 @@ class FirewallSwitch (object):
               str(self.transparent))
 
   # LID: add firewall rules to block packets with this src MAC
+  #      The firewall table entry is "(dpistr,srcMac), true/false"
+  #      if the matched entry returns True, then forward
+  #      else drop 
+  #
   def AddRule(self, dpidstr, src = 0, value = True):
     self.firewall[(dpidstr,src)] = value
     log.debug("Adding firewall rule in switch %s for src MAC %s", dpidstr, src)
@@ -115,6 +120,7 @@ class FirewallSwitch (object):
         log.debug("Rule on MAC %s found in %s: FORWARD", src, dpidstr)
       else:
         log.debug("Rule on MAC %s found in %s: DROP", src, dpidstr)
+
       return entry
     except KeyError:
         log.debug("Rule on MAC %s NOT found in %s: DROP", src, dpidstr)
@@ -245,7 +251,7 @@ class l2_learning (object):
     FirewallSwitch(event.connection, self.transparent)
 
 
-def launch (transparent=False, hold_down=_flood_delay):
+def launch (transparent=False, hold_down=_flood_delay, firewall_file = "cs589.firewall"):
   """
   Starts an L2 learning switch.
   """
@@ -256,7 +262,16 @@ def launch (transparent=False, hold_down=_flood_delay):
   except:
     raise RuntimeError("Expected hold-down to be a number")
 
-  import pdb; pdb.set_trace()
+  #import pdb; pdb.set_trace()
+  log.info("*** Firewall file : %s", (firewall_file))
+  if os.path.isfile(firewall_file) == False:
+     #log.debug("*** Firewall file %s not found!",(firewall_file))
+     raise RuntimeError(" Firewall rules %s not found!" % (firewall_file))
+  else:
+     if os.stat(firewall_file).st_size == 0:
+         raise RuntimeError(" Firewall rules %s empty!" % (firewall_file))
+  log.info("*** Firewall file: %s found!" % (firewall_file))
+	  
   # LID: Regisgter l2_learning class with the core 
   core.registerNew(l2_learning, str_to_bool(transparent))
 
