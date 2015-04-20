@@ -26,7 +26,9 @@ log = core.getLogger()
 #
 class L2VlanSwtich(object):
     def __init__(self, connection):
-        log.debug("*** L2VlanSwtich init")
+        log.info("*** L2VlanSwtich init")
+        self._connection_ = connection
+	
 
     
 #
@@ -38,14 +40,16 @@ class l2_vlan(object):
         log.info("*** To add myself as a listener to connection up event! ")
 	core.openflow.addListeners(self)
 
-    def __handle_ConnectionUp(self, event):
-	log.debug("*** Connection up event: %s" % (event.connection))
-	L2VlanSwtich()
+    def _handle_ConnectionUp(self, event):
+        #import pdb; pdb.set_trace()	
+        log.info("*** Connection up event: %s" % (event.connection))
+	L2VlanSwtich(event.connection)
 
 
 #
 # launch function
 #
-def launch ():
+def launch (vlan_id = 0):
+    print "*** vlan id: ", vlan_id
     core.registerNew(l2_vlan)
     
