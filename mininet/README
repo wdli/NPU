@@ -1,8 +1,10 @@
-
+-----------------
 To launch a simple 3-hosts, 1-node mininet net, do
 sudo mn --topo=single,3 --mac --controller=remote --switch=ovsk
 
 Then lauch a POX controller to connect to the net
+
+e.g. pox log.level --DEBUG l2_vlan (without .py)
 
 ------------------
 
