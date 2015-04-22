@@ -76,10 +76,11 @@ class FirewallSwitch (object):
      flow goes out the appopriate port
      6a) Send the packet out appropriate port
   """
-  def __init__ (self, connection, transparent):
+  def __init__ (self, connection, transparent, firewall_file):
     # Switch we'll be adding L2 learning switch capabilities to
-    self.connection = connection
-    self.transparent = transparent
+    self.connection    = connection
+    self.transparent   = transparent
+    self.firewall_file = firewall_file 
 
     # Our table forwarding
     self.macToPort = {}
@@ -87,8 +88,11 @@ class FirewallSwitch (object):
     # LID: firewall hash table and init with rules
     self.firewall = {}
     # LID: add rules to allow h1 and h2 to ping each other
-    self.AddRule('00-00-00-00-00-01',EthAddr('00-00-00-00-00-01'))
-    self.AddRule('00-00-00-00-00-01',EthAddr('00-00-00-00-00-02'))
+    log.info("*** Firewall rules are in the file %s" % (firewall_file))
+
+    #self.AddRule('00-00-00-00-00-01',EthAddr('00-00-00-00-00-01'))
+    #self.AddRule('00-00-00-00-00-01',EthAddr('00-00-00-00-00-02'))
+    self.AddRule2('00-00-00-00-00-01')
     
     # We want to hear PacketIn messages, so we listen
     # to the connection
@@ -107,11 +111,34 @@ class FirewallSwitch (object):
   #      The firewall table entry is "(dpistr,srcMac), true/false"
   #      if the matched entry returns True, then forward
   #      else drop 
-  #
+  # 
+  """
   def AddRule(self, dpidstr, src = 0, value = True):
     self.firewall[(dpidstr,src)] = value
     log.debug("Adding firewall rule in switch %s for src MAC %s", dpidstr, src)
-
+  """
+  
+  def AddRule2(self, dpidstr):
+    #Read the rule from the file and add them
+    #import pdb; pdb.set_trace()
+    f = None
+    try:
+        f = open(self.firewall_file)
+        for src in f:
+           # Need to strip off the carriage return at the end
+           # and check if the string is empty
+           src = src[:-1]
+           if src:
+           	log.info("*** Rule for src %s" % (src))
+           	self.firewall[(dpidstr,EthAddr(src))] = True 
+           	log.info("*** Added firewall rule in switch %s for src MAC %s", dpidstr, EthAddr(src))
+    except: 
+	log.debug("*** Something is wrong with adding rules! ")
+        raise RuntimeError("*** Error adding firewall rules")
+    finally:
+        log.info("*** Done reading filewall rules")
+        f.close()
+  
   # LID: check firewall rules
   def CheckRule(self, dpidstr, src = 0):
     try:
@@ -238,9 +265,12 @@ class l2_learning (object):
   #      addListeners in a class __init__. Here it's done
   #      using core.openflow.addListener() interface
 
-  def __init__ (self, transparent):
-    core.openflow.addListeners(self)
+  def __init__ (self, transparent, firewall_file):
+
+    core.openflow.addListeners(self) # Core will register the callback function
+                                     # starts with _handle_xxx
     self.transparent = transparent
+    self.firewall_file = firewall_file 
 
   # handler for ConnectionUp event
   # also create a FirewallSwitch object instance
@@ -248,12 +278,15 @@ class l2_learning (object):
 
   def _handle_ConnectionUp (self, event):
     log.debug("LID Connection %s" % (event.connection,))
-    FirewallSwitch(event.connection, self.transparent)
+    FirewallSwitch(event.connection, self.transparent, self.firewall_file)
 
 
+#
+# launch
+#
 def launch (transparent=False, hold_down=_flood_delay, firewall_file = "cs589.firewall"):
   """
-  Starts an L2 learning switch.
+  Starts an L2  switch.
   """
   try:
     global _flood_delay
@@ -263,6 +296,8 @@ def launch (transparent=False, hold_down=_flood_delay, firewall_file = "cs589.fi
     raise RuntimeError("Expected hold-down to be a number")
 
   #import pdb; pdb.set_trace()
+
+  # Check the firewall file exists locally and not empty
   log.info("*** Firewall file : %s", (firewall_file))
   if os.path.isfile(firewall_file) == False:
      #log.debug("*** Firewall file %s not found!",(firewall_file))
@@ -272,6 +307,6 @@ def launch (transparent=False, hold_down=_flood_delay, firewall_file = "cs589.fi
          raise RuntimeError(" Firewall rules %s empty!" % (firewall_file))
   log.info("*** Firewall file: %s found!" % (firewall_file))
 	  
-  # LID: Regisgter l2_learning class with the core 
-  core.registerNew(l2_learning, str_to_bool(transparent))
+  # LID: Register l2_learning class with the core 
+  core.registerNew(l2_learning, str_to_bool(transparent), firewall_file)
 
