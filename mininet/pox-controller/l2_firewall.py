@@ -92,7 +92,8 @@ class FirewallSwitch (object):
 
     #self.AddRule('00-00-00-00-00-01',EthAddr('00-00-00-00-00-01'))
     #self.AddRule('00-00-00-00-00-01',EthAddr('00-00-00-00-00-02'))
-    self.AddRule2('00-00-00-00-00-01')
+    #self.AddRule2('00-00-00-00-00-01')
+    self.AddRule2(dpid_to_str(self.connection.dpid))
     
     # We want to hear PacketIn messages, so we listen
     # to the connection
@@ -120,7 +121,6 @@ class FirewallSwitch (object):
   
   def AddRule2(self, dpidstr):
     #Read the rule from the file and add them
-    #import pdb; pdb.set_trace()
     f = None
     try:
         f = open(self.firewall_file)
@@ -129,7 +129,7 @@ class FirewallSwitch (object):
            # and check if the string is empty
            src = src[:-1]
            if src:
-           	log.info("*** Rule for src %s" % (src))
+           	log.info("*** Rule for switch %s, source MAC%s" % (dpidstr,src))
            	self.firewall[(dpidstr,EthAddr(src))] = True 
            	log.info("*** Added firewall rule in switch %s for src MAC %s", dpidstr, EthAddr(src))
     except: 
@@ -277,7 +277,7 @@ class l2_learning (object):
   # and pass the connection object
 
   def _handle_ConnectionUp (self, event):
-    log.debug("LID Connection %s" % (event.connection,))
+    log.debug("LID Connection %s" % (event.connection))
     FirewallSwitch(event.connection, self.transparent, self.firewall_file)
 
 
@@ -304,7 +304,9 @@ def launch (transparent=False, hold_down=_flood_delay, firewall_file = "cs589.fi
      raise RuntimeError(" Firewall rules %s not found!" % (firewall_file))
   else:
      if os.stat(firewall_file).st_size == 0:
-         raise RuntimeError(" Firewall rules %s empty!" % (firewall_file))
+         #raise RuntimeError(" Firewall rules %s empty!" % (firewall_file))
+         log.info("*** Warning: empty firewall rules!")
+
   log.info("*** Firewall file: %s found!" % (firewall_file))
 	  
   # LID: Register l2_learning class with the core 
