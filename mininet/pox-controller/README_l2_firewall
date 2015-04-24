@@ -1,0 +1,15 @@
+The basis usage of l2_firewall module
+-------------------------------------
+
+1. Launch a single switch 3 node mininet topology
+
+2. Launch the l2_firewall by
+   pox log.level --DEBUG l2_firewall --firewall-file="xxxx"
+   For example,  pox log.level --DEBUG l2_firewall --firewall-file="cs589.firewall.rules"
+
+3. The firewall file contains the port MAC addresses that are ALLOWED in the firewall. 
+   Empty firewall rules are permitted for testing purpose. It means no traffic is allowed
+
+4. To test in mininet, do "pingall"
+
+
