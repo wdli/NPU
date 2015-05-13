@@ -1,5 +1,11 @@
+To launch a tree-like 3-switch and 4-hosts network:
+
+sudo mn --topo tree,depth=2,fanout=2 --controller=remote --switch ovsk
+
+
 -----------------
-To launch a simple 3-hosts, 1-node mininet net, do
+
+To launch a simple 3-hosts, 1-node mininet network, do
 sudo mn --topo=single,3 --mac --controller=remote --switch=ovsk
 
 Then lauch a POX controller to connect to the net
