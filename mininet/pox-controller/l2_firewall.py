@@ -12,6 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#
+# Customerized for firewall example
+#
+# TO run in mininet:
+# ----------------
+#  First launch a mininet with a single switch and three hosts
+#  This can be done using a command line or a custom topo file in Python
+#  Then launch the firewall:
+#    pox log.level --DEBUG l2_firewall --firewall_file=<name of filewall rules file> 
+#   
+#  
 """
 An L2 learning switch.
 
