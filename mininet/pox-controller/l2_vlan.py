@@ -1,6 +1,7 @@
 """
 An L2 switch capable of vlan
-
+create: May 15, 2015
+        WORK-IN_PROGRESS!!!
 Usage: 
    1. Launch a mininet
    2. Launch this controller: pox log.level --DEBUG l2_vlan
