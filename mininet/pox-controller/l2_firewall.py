@@ -108,7 +108,7 @@ class FirewallSwitch (object):
     
     # We want to hear PacketIn messages, so we listen
     # to the connection
-    # LID: again it's a common patter to add itself as a listener in __init__
+    # LID: again it's a common pattern to add itself as a listener in __init__
     #      here it's done using connection.addListener() interface
 
     connection.addListeners(self)
@@ -171,7 +171,9 @@ class FirewallSwitch (object):
       log.debug("Rule on MAC %s deleted in %s", src, dpidstr)
     except KeyError:
       log.error("Rule on MAC %s NOT found in %s", src, dpidstr)
-
+ 
+  def _handle_FlowRemoved(self,event):
+    log.info("Flow Removed")
       
   def _handle_PacketIn (self, event):
     """
@@ -262,6 +264,7 @@ class FirewallSwitch (object):
         msg.match = of.ofp_match.from_packet(packet, event.port)
         msg.idle_timeout = 10
         msg.hard_timeout = 30
+        msg.flags |= of.OFPFF_SEND_FLOW_REM
         msg.actions.append(of.ofp_action_output(port = port))
         msg.data = event.ofp # 6a
         self.connection.send(msg)
