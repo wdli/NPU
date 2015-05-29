@@ -179,6 +179,9 @@ class FirewallSwitch (object):
   # LID: handle flow removed event
   def _handle_FlowRemoved(self,event):
     log.info("Flow Removed on %s", dpid_to_str(event.dpid))
+    #import pdb; pdb.set_trace()
+
+    # Find out the reason for removal
     reason = event.ofp.reason
     if reason == of.OFPRR_IDLE_TIMEOUT:
       log.info(" Reason: idle timeout")
@@ -186,6 +189,11 @@ class FirewallSwitch (object):
       log.info(" Reason: hard timeout")
     else:
       log.info(" Reason unclear")
+
+    # Find out which flow is removed
+    flow_removal = event.ofp.match
+    log.info(" Removed flow src: %s - dst: %s", flow_removal.nw_src, flow_removal.nw_dst)
+
     
       
   def _handle_PacketIn (self, event):
