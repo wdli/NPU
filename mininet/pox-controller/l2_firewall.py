@@ -319,7 +319,7 @@ class l2_learning (object):
 #
 # launch
 #
-def launch (transparent=False, hold_down=_flood_delay, firewall_file = "cs589.firewall"):
+def launch (transparent=False, hold_down=_flood_delay, rule = "cs589.firewall"):
   """
   Starts an L2  switch.
   """
@@ -333,17 +333,17 @@ def launch (transparent=False, hold_down=_flood_delay, firewall_file = "cs589.fi
   #import pdb; pdb.set_trace()
 
   # Check the firewall file exists locally and not empty
-  log.info("*** Firewall file : %s", (firewall_file))
-  if os.path.isfile(firewall_file) == False:
-     #log.debug("*** Firewall file %s not found!",(firewall_file))
-     raise RuntimeError(" Firewall rules %s not found!" % (firewall_file))
+  log.info("*** Firewall file : %s", (rule))
+  if os.path.isfile(rule) == False:
+     #log.debug("*** Firewall file %s not found!",(rule))
+     raise RuntimeError(" Firewall rules %s not found!" % (rule))
   else:
-     if os.stat(firewall_file).st_size == 0:
-         #raise RuntimeError(" Firewall rules %s empty!" % (firewall_file))
+     if os.stat(rule).st_size == 0:
+         #raise RuntimeError(" Firewall rules %s empty!" % (rule))
          log.info("*** Warning: empty firewall rules!")
 
-  log.info("*** Firewall file: %s found!" % (firewall_file))
+  log.info("*** Firewall file: %s found!" % (rule))
 	  
   # LID: Register l2_learning class with the core 
-  core.registerNew(l2_learning, str_to_bool(transparent), firewall_file)
+  core.registerNew(l2_learning, str_to_bool(transparent), rule)
 
