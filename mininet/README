@@ -1,1 +1,34 @@
+-------------------
+To launch a custom topo:
+
+sudo mn --custom ./l2_topo.py --topo mytopo
+# The above has to match the l2_topo.py definitions
+
+------------------------------------------------------
+
+To launch a tree-like 3-switch and 4-hosts network:
+
+sudo mn --topo tree,depth=2,fanout=2 --controller=remote --switch ovsk
+
+-----------------
+
+To launch a simple 3-hosts, 1-node mininet network, do
+
+sudo mn --topo=single,3 --mac --controller=remote --switch=ovsk
+
+Then lauch a POX controller to connect to the net
+
+e.g. pox log.level --DEBUG l2_vlan (without .py)
+
+------------------
+
 This is the minite related code
+
+Added layer 2 simple firewall
+
+added package init file __init__.py in pox-controller/
+so pox.py can find it if /path/to/pox-controller is
+added in the PYTHONPATH
+
+
+------------------
