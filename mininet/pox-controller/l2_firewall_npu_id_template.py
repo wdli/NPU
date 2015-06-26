@@ -97,7 +97,10 @@ class FirewallSwitch (object):
     self.macToPort = {}
 
     # NPU: firewall hash table and init with rules
-    self.firewall = {}
+    ########################################################
+    # YOUR CODE HERE set up a firewall table using dictionary
+    ########################################################
+    
     # NPU: add rules to allow h1 and h2 to ping each other
     log.info("*** Firewall rules are in the file %s" % (firewall_file))
 
@@ -145,7 +148,11 @@ class FirewallSwitch (object):
            src = src[:-1]
            if src:
            	log.info("*** Rule for switch %s, source MAC%s" % (dpidstr,src))
-           	self.firewall[(dpidstr,EthAddr(src))] = True 
+
+              	########################################################
+    		# YOUR CODE HERE: populate the firewall table
+    		########################################################
+
            	log.info("*** Added firewall rule in switch %s for src MAC %s", dpidstr, EthAddr(src))
     except: 
 	log.debug("*** Something is wrong with adding rules! ")
@@ -157,7 +164,10 @@ class FirewallSwitch (object):
   # NPU: check firewall rules
   def CheckRule(self, dpidstr, src = 0):
     try:
-      entry = self.firewall[(dpidstr, src)]
+      
+       ########################################################
+       # YOUR CODE HERE use entry variable to hold the firewall rule
+       ########################################################
       if entry == True:
         log.debug("Rule on MAC %s found in %s: FORWARD", src, dpidstr)
       else:
@@ -168,7 +178,7 @@ class FirewallSwitch (object):
         log.debug("Rule on MAC %s NOT found in %s: DROP", src, dpidstr)
         return False
 
-  # LID: delete rule from firewall
+  # NPU: delete rule from firewall
   def DeleteRule(self, dpidstr, src = 0):
     try:
       del self.firewall[(dpidstr,src)]
@@ -252,11 +262,9 @@ class FirewallSwitch (object):
     # NPU: Check if the packet from this source is allowed
     # by firewall
     dpidstr = dpid_to_str(event.connection.dpid) 
-    if self.CheckRule(dpidstr,packet.src) == False:
-      log.warning("Firewall to drop packet from %s -> %s"
-              % (packet.src, packet.dst))
-      drop()
-      return
+    ####################################################
+    # YOUR CODE HERE: call CheckRule function to check for rules
+    ###################################################
       
     
     
