@@ -1,0 +1,11 @@
+Testing
+--------
+client/server cert:
+create a combined client/server cert by cat client/server cert and client/server private key 
+
+server:
+openssl s_server -cert server/serverComb.crt -www -CAfile subCA.crt -verify 3
+
+client:
+openssl s_client -connect 127.0.0.1:4433 -cert client/clientComb.crt -CAfile subCA.crt
+
