@@ -1,0 +1,49 @@
+# Root CA structure
+#================
+
+mkdir rootCA
+cd rootCA
+mkdir certs db private
+chmod 700 private
+touch db/index
+echo 1001 > db/serial
+echo 1001 > db/crlnumber
+
+##############################
+# Root CA Gneration
+##############################
+1. Create key pairs and a CSR
+
+openssl req -new -config rootCA.conf -out rootCA.csr -keyout private/rootCA_david.key # Note the private key name might NOT match the one defined in the rootCA.conf file
+
+2. Create a self-signed root cert
+
+openssl ca -selfsign -config rootCA.conf -in rootCA.csr -out rootCA.crt -extensions ca_ext -keyfile private/rootCA_david.key # Note the private key name has to match the step 1
+
+#
+# Create a CRL for the root CA
+#
+openssl ca -gencrl -config rootCA.conf -out rootCA.crl -keyfile private/rootCA_david.prikey -cert rootCA.crt # Note if the private key name and Root CA cert name are not the same as in the configuration file, then have to spell out using -keyfile and -cert
+
+# 
+# create OCSP responder for the root CA
+#
+# First create an CSR, second use the root CA to issue a cert
+#
+openssl req -new -newkey rsa:2048 -subj "/C=US/ST=California/O=Example/CN=Root Responder David Li" -nodes -keyout private/rootOcsp.key -out rootOcsp.csr
+
+
+openssl ca -config rootCA.conf -in rootOcsp.csr -out rootOcsp.crt -extensions ocsp_ext -keyfile private/rootCA_david.prikey -cert rootCA.crt # Again -cert and -keyfile are needed if the names are not the same as in configuration file
+
+
+################################
+# Subordinate CA
+################################
+
+create a subCA.conf file from rootCA.conf
+
+# create a subCA CSR
+openssl req -new -config subCA.conf -out subCA.csr -keyout private/subCA_david.prikey
+
+# sign the subCA CSR
+openssl ca -config rootCA.conf -in subCA.csr -out subCA.crt -extensions sub_ca_ext -keyfile private/rootCA_david.key -cert rootCA.crt 
