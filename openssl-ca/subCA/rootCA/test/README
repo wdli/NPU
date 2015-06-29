@@ -1,11 +1,48 @@
 Testing
 --------
-client/server cert:
+Create client/server cert:
 create a combined client/server cert by cat client/server cert and client/server private key 
 
-server:
+subCA only
+==========
+server using subCA:
 openssl s_server -cert server/serverComb.crt -www -CAfile subCA.crt -verify 3
 
-client:
+client using subCA:
 openssl s_client -connect 127.0.0.1:4433 -cert client/clientComb.crt -CAfile subCA.crt
+
+
+rootCA and subCA
+===============
+cantenate rootCA and subCA into a caChain.crt
+
+On server:
+openssl s_server -cert server/serverComb.crt -www -CAfile caChain.crt -verify 3
+
+
+On client:
+openssl s_client -CAfile caChain.crt -cert client/clientComb.crt
+
+client output:
+--------------
+[David.Li@npu240 test]$ openssl s_client -CAfile caChain.crt -cert client/clientComb.crt 
+CONNECTED(00000003)
+depth=0 C = US, ST = California, O = David's company, CN = David's server cert, emailAddress = david.li@test.cs.com
+verify error:num=47:permitted subtree violation
+verify return:1
+depth=2 C = US, ST = California, O = Example, CN = Root CA David Li
+verify return:1
+depth=1 C = US, ST = California, O = Example, CN = Sub CA David Li
+verify return:1
+depth=0 C = US, ST = California, O = David's company, CN = David's server cert, emailAddress = david.li@test.cs.com
+verify return:1
+---
+Certificate chain
+ 0 s:/C=US/ST=California/O=David's company/CN=David's server cert/emailAddress=david.li@test.cs.com
+   i:/C=US/ST=California/O=Example/CN=Sub CA David Li
+ 1 s:/C=US/ST=California/O=Example/CN=Sub CA David Li
+   i:/C=US/ST=California/O=Example/CN=Root CA David Li
+ 2 s:/C=US/ST=California/O=Example/CN=Root CA David Li
+   i:/C=US/ST=California/O=Example/CN=Root CA David Li
+---
 
