@@ -3,8 +3,8 @@ Testing
 Create client/server cert:
 create a combined client/server cert by cat client/server cert and client/server private key 
 
-subCA only
-==========
+#subCA only
+#==========
 server using subCA:
 openssl s_server -cert server/serverComb.crt -www -CAfile subCA.crt -verify 3
 
@@ -12,8 +12,8 @@ client using subCA:
 openssl s_client -connect 127.0.0.1:4433 -cert client/clientComb.crt -CAfile subCA.crt
 
 
-rootCA and subCA
-===============
+#rootCA and subCA
+#===============
 cantenate rootCA and subCA into a caChain.crt
 
 On server:

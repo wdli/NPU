@@ -52,9 +52,9 @@ openssl req -new -config subCA.conf -out subCA.csr -keyout private/subCA_david.k
 openssl ca -config rootCA.conf -in subCA.csr -out subCA.crt -extensions sub_ca_ext -keyfile private/rootCA_david.key -cert rootCA.crt 
 
 
-#######################################
-# Entity certs
-#######################################
+#################################################
+# Entity certs (client example, server similar)
+#################################################
 
 # generate a RSA private key
 openssl genrsa -out private/client_david.key 2048
