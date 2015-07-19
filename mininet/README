@@ -1,7 +1,19 @@
--------------------
-To launch a custom topo:
+For CS589C to download the firewall template python file:
+---------------------------------------------------------
+Go to npu240 and select a directory to put the template file. Then start a Python http server in the same directory like this:
 
-sudo mn --custom ./l2_topo.py --topo mytopo
+
+python -m SimpleHTTPServer 6001&
+
+From another machine use wget to download the file:
+
+wget http://npu240.npu.edu:6001/<file>
+
+
+-------------------
+To launch a custom topo to use the POX l2_firewall application:
+
+sudo mn --custom ./l2_topo.py --topo mytopo --controller remote --switch ovsk --mac
 # The above has to match the l2_topo.py definitions
 
 ------------------------------------------------------
