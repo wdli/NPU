@@ -1,5 +1,6 @@
+###########################
 # Root CA structure
-#================
+###########################
 
 mkdir rootCA
 cd rootCA
@@ -10,7 +11,7 @@ echo 1001 > db/serial
 echo 1001 > db/crlnumber
 
 ##############################
-# Root CA Gneration
+# Root CA Generation
 ##############################
 1. Create key pairs and a CSR
 
@@ -39,11 +40,39 @@ openssl ca -config rootCA.conf -in rootOcsp.csr -out rootOcsp.crt -extensions oc
 ################################
 # Subordinate CA
 ################################
+# In the same directory as above!!!
+#
 
-create a subCA.conf file from rootCA.conf
+#create a subCA.conf file from rootCA.conf
 
 # create a subCA CSR
-openssl req -new -config subCA.conf -out subCA.csr -keyout private/subCA_david.prikey
+openssl req -new -config subCA.conf -out subCA.csr -keyout private/subCA_david.key
 
 # sign the subCA CSR
 openssl ca -config rootCA.conf -in subCA.csr -out subCA.crt -extensions sub_ca_ext -keyfile private/rootCA_david.key -cert rootCA.crt 
+
+
+#################################################
+# Entity certs (client example, server similar)
+#################################################
+
+# generate a RSA private key
+openssl genrsa -out private/client_david.key 2048
+
+
+# generate a matching public key
+#
+openssl rsa -in private/client_david.key -pubout -out client_david_pubkey.key
+
+# Create a client config file 'clientCert.conf'
+
+# generate a CSR
+openssl req -new -config clientCert.conf -key private/client_david.key -out clientCert.csr
+
+# use subCA to sign client CSR
+# Note: The key here is to allow organizationName in the subCA.conf to be "supplied" rather than
+# "match". This way the client can specify its own name in the configuration file. 
+# Otherwise Openssl seems to have trouble to sign the client CSR
+#
+openssl ca -config subCA.conf -in clientCert.csr -out clientCert.crt -extensions client_ext -keyfile private/subCA_david.key -cert subCA.crt
+
