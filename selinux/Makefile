@@ -21,6 +21,7 @@ SPEC_RPMS_DIR ?= $(RPM_TOP)/SPECS
 TRESYS_REFPOL ?= $(POLICY_WORK_DIR)/serefpolicy-3.7.19.tgz
 
 MODS_CONF_6=$(POLICY_WORK_DIR)/modules-targeted.conf
+MODS_CONF_6_ORG=$(POLICY_WORK_DIR)/modules-targeted.conf.org.david
 #
 # target: all
 #
@@ -42,24 +43,18 @@ chk_rpmtop:
 # target: get_modules_conf
 #
 
-#cp -v $(MODS_CONF_6){.org,};\
-#[ $$? -ne 0 ] && exit 10 || true;\
 
-BOOLEAN_TAGRGETED_CONF=$(POLICY_WORK_DIR)/booleans-targeted.conf
-SETTRANS_TARGETED_CONF=$(POLICY_WORK_DIR)/setrans-targeted.conf
 get_modules_conf:
 	printf "\n#### David's test policy\n#" >> $(MODS_CONF_6); \
-	for ff in `find mypolicy -name *.te`; do \
+	cp -v $(MODS_CONF_6){.org.david,};\
+	[ $$? -ne 0 ] && exit 10 || true;\
+	for ff in `find policy -name *.te`; do \
                 echo $$ff|\
-                sed -e 's|^mypolicy/\(.*\).te|\n# David \n#\n\1 = module|'\
+                sed -e 's|^policy/modules/services/\(.*\).te|\n# David \n#\n\1 = module|'\
                 >> $(MODS_CONF_6); \
         done
 	CMD="cp $(MODS_CONF_6) $(RPMBUILD_SOURCES_DIR)";\
 	echo "$${CMD}";eval $${CMD}
-	#CMD="cp $(BOOLEAN_TAGRGETED_CONF) $(RPMBUILD_SOURCES_DIR)";\
-        #echo "$${CMD}";eval $${CMD};\
-	#CMD="cp $(SETTRANS_TARGETED_CONF) $(RPMBUILD_SOURCES_DIR)";\
-        #echo "$${CMD}";eval $${CMD}
 
 
 
