@@ -103,4 +103,13 @@ rpm: getrefpol get_modules_conf getmypol prep_rpmsource
         CMD="rpmbuild -v --define '_topdir $(RPM_TOP)' -bb $(MYSPEC)";\
         echo "$${CMD}";eval $${CMD};\
 #$(call selnk)
+
+
+               
+clean:
+	@echo "cleaning up rpmbuild/{source, build}"
+	CMD="rm -rf $(RPMBUILD_SOURCES_DIR)/* $(RPMBUILD_BUILD_DIR)/*";\
+	echo "$${CMD}"; eval $${CMD};
+	
+ 
  
