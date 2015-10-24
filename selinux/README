@@ -1,1 +1,5 @@
-For Centos6.5 SElinux RPM build only
+The files in this directory is for Centos6.5 SElinux RPM build only
+
+For Centos7.1, please use files in the sub directory centos7/
+
+
