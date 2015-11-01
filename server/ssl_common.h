@@ -10,7 +10,7 @@
 
 
 // file to store students logins
-#define STUDENT_LOGIN_RECORD "student_login_records_fall_2014.txt"
+#define STUDENT_LOGIN_RECORD "cs535_student_login_records.txt"
 FILE* student_file;
 
 // pthread stuff

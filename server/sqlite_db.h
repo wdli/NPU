@@ -6,7 +6,7 @@
 
 
 #define DB_NAME "CS535.db"
-#define TABLE_NAME "CS535_FALL14"
+#define TABLE_NAME "CS535_student_table"
 
 //
 // opent the db

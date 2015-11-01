@@ -2,3 +2,29 @@ TO compile all: make all
 
 To compile sqlite code, use "-lsqlite3"
 
+------------------------------
+11/2/2015
+How to use ssl_server?
+=========================
+
+Listening port:
+***************
+ssl_common.h:#define PORT "6001"
+
+The student login records:
+***************************
+ssl_common.h:#define STUDENT_LOGIN_RECORD "cs535_student_login_records.txt"
+
+
+The DB name is defined in:
+*************************
+sqlite_db.h:#define DB_NAME "CS535.db"
+sqlite_db.h:#define TABLE_NAME "CS535_student_table"
+
+
+The server cert and CA names are defined in:
+*********************************************
+ssl_server.c:#define SERVERCERT "cs535_server_cert_fall14.pem"
+ssl_server.c:#define CAFILE "cs535_CA_cert_fall14.pem"
+
+
